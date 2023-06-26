@@ -5,6 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.example.slagalica.R;
+
+import java.io.ByteArrayOutputStream;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "myapp.db";
@@ -21,7 +27,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTableQuery = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, username TEXT, password TEXT)";
         db.execSQL(createTableQuery);
     }
-
+  // Pretvorite sliku u bajt niz
     public void insertUser(String email,String username, String password) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -46,4 +52,28 @@ public class DBHelper extends SQLiteOpenHelper {
         cursor.close();
         return loginSuccessful;
     }
+
+    public Cursor getProfileCursor(String username) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] projection = {
+                "email",
+                "username"
+        };
+
+        String selection = "username = ?";
+        String[] selectionArgs = { username };
+
+        return db.query(
+                "users",
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+    }
+
+
 }

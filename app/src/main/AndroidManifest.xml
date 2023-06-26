@@ -20,7 +20,8 @@
             android:theme="@style/Theme.Slagalica" />
         <activity
             android:name=".HomeActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Slagalica.NoActionBar"/>
         <activity
             android:name=".LoginActivity"
             android:exported="false" />

@@ -13,18 +13,15 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:title="Home"
-            app:titleTextColor="@android:color/white" />
-
-        <TextView
-            android:id="@+id/login_title"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
+        <Button
+            android:id="@+id/button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="32dp"
-            android:text="Login"
-            android:textColor="#000000"
-            android:textSize="24sp" />
+            android:layout_below="@id/toolbar"
+            android:text="Zapocni igru" />
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
