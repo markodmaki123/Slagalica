@@ -16,7 +16,7 @@
             android:elevation="4dp"
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar" />
         <Button
-            android:id="@+id/button"
+            android:id="@+id/BTNzapocniIgru"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"

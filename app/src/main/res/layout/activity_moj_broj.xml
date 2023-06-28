@@ -7,10 +7,10 @@
     tools:context=".games.MojBrojActivity">
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/TVTrazeniBroj"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Trazeni broj"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -18,10 +18,10 @@
         app:layout_constraintVertical_bias="0.05"/>
 
     <TextView
-        android:id="@+id/textJednocifreni1"
+        android:id="@+id/TVJednocifreni1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Jednocifreni 1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,10 +30,10 @@
         app:layout_constraintVertical_bias="0.15"/>
 
     <TextView
-        android:id="@+id/textJednocifreni2"
+        android:id="@+id/TVJednocifreni2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Jednocifreni 2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,10 +41,10 @@
         app:layout_constraintHorizontal_bias="0.4"
         app:layout_constraintVertical_bias="0.15"/>
     <TextView
-        android:id="@+id/textJednocifreni3"
+        android:id="@+id/TVJednocifreni3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Jednocifreni 3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -53,10 +53,10 @@
         app:layout_constraintVertical_bias="0.15"/>
 
     <TextView
-        android:id="@+id/textJednocifreni4"
+        android:id="@+id/TVJednocifreni4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Jednocifreni 4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -65,10 +65,10 @@
         app:layout_constraintVertical_bias="0.15"/>
 
     <TextView
-        android:id="@+id/textSrednji"
+        android:id="@+id/TVSrednji"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Srednji"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,10 +77,10 @@
         app:layout_constraintVertical_bias="0.2"/>
 
     <TextView
-        android:id="@+id/textJVeliki"
+        android:id="@+id/TVVeliki"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Veliki"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -89,25 +89,36 @@
         app:layout_constraintVertical_bias="0.2"/>
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/ETResenje"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:text="Name"
+        android:text="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/BTNStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Stop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.75"/>
+    <Button
+        android:id="@+id/BTNStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintVertical_bias="0.75"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
