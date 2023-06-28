@@ -60,8 +60,8 @@ public class HomeActivity extends AppCompatActivity {
 
     private void openProfile() {
         // Implementacija otvaranja profila
-        Intent homeIntent = new Intent(HomeActivity.this, ProfileActivity.class);
-        startActivity(homeIntent);
+        Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+        startActivity(intent);
         finish();
     }
 
@@ -70,6 +70,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        // Implementacija odjave
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

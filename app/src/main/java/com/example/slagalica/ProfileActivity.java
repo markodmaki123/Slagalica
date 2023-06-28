@@ -102,8 +102,8 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void openProfile() {
         // Implementacija otvaranja profila
-        Intent homeIntent = new Intent(ProfileActivity.this, ProfileActivity.class);
-        startActivity(homeIntent);
+        Intent intent = new Intent(ProfileActivity.this, ProfileActivity.class);
+        startActivity(intent);
         finish();
     }
 
@@ -112,6 +112,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void logout() {
-        // Implementacija odjave
+        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
