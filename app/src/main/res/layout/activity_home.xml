@@ -38,6 +38,14 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@id/BTNKoznaZna"
             android:text="Zapocni igru" />
+
+        <Button
+            android:id="@+id/BTNAso"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/BTNKorakPoKorak"
+            android:text="Zapocni Aso" />
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView

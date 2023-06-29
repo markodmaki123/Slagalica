@@ -25,8 +25,8 @@ public class LoginActivity extends AppCompatActivity {
         dbHelper = new DBHelper(this);
 
         String emailTest = "marko@gmail.com";
-        String usernameTest = "Marko";
-        String passwordTest = "marko1233";
+        String usernameTest = "123";
+        String passwordTest = "123";
         dbHelper.insertUser(emailTest, usernameTest, passwordTest);
 
         Button loginButton = findViewById(R.id.login_button);

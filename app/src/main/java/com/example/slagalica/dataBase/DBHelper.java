@@ -39,6 +39,12 @@ public class DBHelper extends SQLiteOpenHelper {
         String createTableQuery = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, username TEXT, password TEXT)";
         String createTableQuestions = "CREATE TABLE questions (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, answer1 TEXT, answer2 TEXT, answer3 TEXT, answer4 TEXT, correct_answer TEXT)";
         String createTableSteps = "CREATE TABLE steps (id INTEGER PRIMARY KEY AUTOINCREMENT, step1 TEXT, step2 TEXT, step3 TEXT, step4 TEXT, step5 TEXT, step6 TEXT, step7 TEXT, correct_answer TEXT)";
+        String createTableAssociations = "CREATE TABLE associations (id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "column11 TEXT, column12 TEXT, column13 TEXT, column14 TEXT, columnAnswer1 TEXT," +
+                "column21 TEXT, column22 TEXT, column23 TEXT, column24 TEXT, columnAnswer2 TEXT," +
+                "column31 TEXT, column32 TEXT, column33 TEXT, column34 TEXT, columnAnswer3 TEXT," +
+                "column41 TEXT, column42 TEXT, column43 TEXT, column44 TEXT, columnAnswer4 TEXT, correct_answer TEXT)";
+        db.execSQL(createTableAssociations);
         db.execSQL(createTableQuery);
         db.execSQL(createTableSteps);
         db.execSQL(createTableQuestions);
@@ -99,6 +105,42 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert("steps", null, values);
     }
 
+    public void insertAssociations(String column11, String column12, String column13, String column14, String columnAnswer1,
+                                   String column21, String column22, String column23, String column24, String columnAnswer2,
+                                   String column31, String column32, String column33, String column34, String columnAnswer3,
+                                   String column41, String column42, String column43, String column44, String columnAnswer4, String correctAnswer) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("column11", column11);
+        values.put("column12", column12);
+        values.put("column13", column13);
+        values.put("column14", column14);
+        values.put("columnAnswer1", columnAnswer1);
+
+        values.put("column21", column21);
+        values.put("column22", column22);
+        values.put("column23", column23);
+        values.put("column24", column24);
+        values.put("columnAnswer2", columnAnswer2);
+
+        values.put("column31", column31);
+        values.put("column32", column32);
+        values.put("column33", column33);
+        values.put("column34", column34);
+        values.put("columnAnswer3", columnAnswer3);
+
+        values.put("column41", column41);
+        values.put("column42", column42);
+        values.put("column43", column43);
+        values.put("column44", column44);
+        values.put("columnAnswer4", columnAnswer4);
+
+        values.put("correct_answer", correctAnswer);
+
+        db.insert("associations", null, values);
+    }
+
     @SuppressLint("Range")
     public String[] getQuestion(int questionId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -143,6 +185,46 @@ public class DBHelper extends SQLiteOpenHelper {
             stepDetails[5] = cursor.getString(cursor.getColumnIndex("step6"));
             stepDetails[6] = cursor.getString(cursor.getColumnIndex("step7"));
             stepDetails[7] = cursor.getString(cursor.getColumnIndex("correct_answer"));
+        }
+
+        cursor.close();
+        db.close();
+
+        return stepDetails;
+    }
+
+    @SuppressLint("Range")
+    public String[] getAssociation(int associoationId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] stepDetails = new String[21]; // Assuming you have 6 columns in your question table
+
+        // Query the database to retrieve the question and its details based on the questionId
+        String query = "SELECT * FROM associations WHERE id = " + associoationId;
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            // Retrieve the question details from the cursor
+            stepDetails[0] = cursor.getString(cursor.getColumnIndex("column11"));
+            stepDetails[1] = cursor.getString(cursor.getColumnIndex("column12"));
+            stepDetails[2] = cursor.getString(cursor.getColumnIndex("column13"));
+            stepDetails[3] = cursor.getString(cursor.getColumnIndex("column14"));
+            stepDetails[4] = cursor.getString(cursor.getColumnIndex("columnAnswer1"));
+            stepDetails[5] = cursor.getString(cursor.getColumnIndex("column21"));
+            stepDetails[6] = cursor.getString(cursor.getColumnIndex("column22"));
+            stepDetails[7] = cursor.getString(cursor.getColumnIndex("column23"));
+            stepDetails[8] = cursor.getString(cursor.getColumnIndex("column24"));
+            stepDetails[9] = cursor.getString(cursor.getColumnIndex("columnAnswer2"));
+            stepDetails[10] = cursor.getString(cursor.getColumnIndex("column31"));
+            stepDetails[11] = cursor.getString(cursor.getColumnIndex("column32"));
+            stepDetails[12] = cursor.getString(cursor.getColumnIndex("column33"));
+            stepDetails[13] = cursor.getString(cursor.getColumnIndex("column34"));
+            stepDetails[14] = cursor.getString(cursor.getColumnIndex("columnAnswer3"));
+            stepDetails[15] = cursor.getString(cursor.getColumnIndex("column41"));
+            stepDetails[16] = cursor.getString(cursor.getColumnIndex("column42"));
+            stepDetails[17] = cursor.getString(cursor.getColumnIndex("column43"));
+            stepDetails[18] = cursor.getString(cursor.getColumnIndex("column44"));
+            stepDetails[19] = cursor.getString(cursor.getColumnIndex("columnAnswer4"));
+            stepDetails[20] = cursor.getString(cursor.getColumnIndex("correct_answer"));
         }
 
         cursor.close();
