@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 
 import com.example.slagalica.games.KoZnaZnaActivity;
+import com.example.slagalica.games.KorakPoKorakActivity;
 import com.example.slagalica.games.MojBrojActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -36,6 +37,8 @@ public class HomeActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private Button btnZapocni;
     private Button btnKoZnaZna;
+
+    private Button btnKorak;
 
 
     private ServerSocket serverSocket;
@@ -59,6 +62,7 @@ public class HomeActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigationView);
         btnZapocni = findViewById(R.id.BTNzapocniIgru);
         btnKoZnaZna = findViewById(R.id.BTNKoznaZna);
+        btnKorak = findViewById(R.id.BTNKorakPoKorak);
 
 
         // Postavljanje toggle dugmeta za Navigation Drawer
@@ -116,6 +120,15 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(HomeActivity.this, KoZnaZnaActivity .class);
+                startActivity(intent);
+            }
+        });
+
+        btnKorak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(HomeActivity.this, KorakPoKorakActivity.class);
                 startActivity(intent);
             }
         });

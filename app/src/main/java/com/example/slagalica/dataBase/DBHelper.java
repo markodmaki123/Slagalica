@@ -33,25 +33,14 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    // SQL upit za kreiranje tabele
-    private static final String CREATE_TABLE_QUESTIONS = "CREATE TABLE " + TABLE_QUESTIONS + "("
-            + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + COLUMN_QUESTION + " TEXT,"
-            + COLUMN_ANSWER1 + " TEXT,"
-            + COLUMN_ANSWER2 + " TEXT,"
-            + COLUMN_ANSWER3 + " TEXT,"
-            + COLUMN_ANSWER4 + " TEXT,"
-            + COLUMN_CORRECT_ANSWER + " INTEGER"
-            + ")";
-
     @Override
     public void onCreate(SQLiteDatabase db) {
-        //db.execSQL("DROP TABLE IF EXISTS questions");
         // Kreiranje tabele za korisnike
         String createTableQuery = "CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT, username TEXT, password TEXT)";
         String createTableQuestions = "CREATE TABLE questions (id INTEGER PRIMARY KEY AUTOINCREMENT, question TEXT, answer1 TEXT, answer2 TEXT, answer3 TEXT, answer4 TEXT, correct_answer TEXT)";
+        String createTableSteps = "CREATE TABLE steps (id INTEGER PRIMARY KEY AUTOINCREMENT, step1 TEXT, step2 TEXT, step3 TEXT, step4 TEXT, step5 TEXT, step6 TEXT, step7 TEXT, correct_answer TEXT)";
         db.execSQL(createTableQuery);
-        //db.execSQL(CREATE_TABLE_QUESTIONS);
+        db.execSQL(createTableSteps);
         db.execSQL(createTableQuestions);
 
     }
@@ -94,6 +83,22 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert(TABLE_QUESTIONS, null, values);
     }
 
+    public void insertSteps(String step1, String step2, String step3, String step4, String step5,String step6, String step7, String correctAnswer) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("step1", step1);
+        values.put("step2", step2);
+        values.put("step3", step3);
+        values.put("step4", step4);
+        values.put("step5", step5);
+        values.put("step6", step6);
+        values.put("step7", step7);
+        values.put("correct_answer", correctAnswer);
+
+        db.insert("steps", null, values);
+    }
+
     @SuppressLint("Range")
     public String[] getQuestion(int questionId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -117,6 +122,33 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return questionDetails;
+    }
+
+    @SuppressLint("Range")
+    public String[] getStep(int stepId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] stepDetails = new String[8]; // Assuming you have 6 columns in your question table
+
+        // Query the database to retrieve the question and its details based on the questionId
+        String query = "SELECT * FROM steps WHERE id = " + stepId;
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            // Retrieve the question details from the cursor
+            stepDetails[0] = cursor.getString(cursor.getColumnIndex("step1"));
+            stepDetails[1] = cursor.getString(cursor.getColumnIndex("step2"));
+            stepDetails[2] = cursor.getString(cursor.getColumnIndex("step3"));
+            stepDetails[3] = cursor.getString(cursor.getColumnIndex("step4"));
+            stepDetails[4] = cursor.getString(cursor.getColumnIndex("step5"));
+            stepDetails[5] = cursor.getString(cursor.getColumnIndex("step6"));
+            stepDetails[6] = cursor.getString(cursor.getColumnIndex("step7"));
+            stepDetails[7] = cursor.getString(cursor.getColumnIndex("correct_answer"));
+        }
+
+        cursor.close();
+        db.close();
+
+        return stepDetails;
     }
 
     public Cursor getProfileCursor(String username) {

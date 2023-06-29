@@ -2,11 +2,18 @@ package com.example.slagalica.games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.slagalica.HomeActivity;
+import com.example.slagalica.ProfileActivity;
 import com.example.slagalica.R;
 import com.example.slagalica.dataBase.DBHelper;
 
@@ -24,19 +31,142 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private EditText etOdgovor;
     private Button btnKorak;
 
+    private String correctAnswer;
+
+    private int stepCounter;
+
+    private int stepId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_korak_po_korak);
 
+        databaseHelper = new DBHelper(this);
+
+        // Ubacite pitanja u bazu podataka
+        databaseHelper.insertSteps("Ima veze sa Savom i Dunavom",
+                "Svih devet slova ove rijeci je razlicito",
+                "Ima veze sa zdravljem",
+                "Moze se odnositi na zivot",
+                "Ima svog agenta i svoju premiju",
+                "Za vozilo je obavezno",
+                "Postoji i CASCO varijanta",
+                "osiguranje"
+                );
+
+
         tvKorak1 = findViewById(R.id.TVKorak1);
         tvKorak2 = findViewById(R.id.TVKorak2);
+        tvKorak2.setVisibility(View.INVISIBLE);
         tvKorak3 = findViewById(R.id.TVKorak3);
+        tvKorak3.setVisibility(View.INVISIBLE);
         tvKorak4 = findViewById(R.id.TVKorak4);
+        tvKorak4.setVisibility(View.INVISIBLE);
         tvKorak5 = findViewById(R.id.TVKorak5);
+        tvKorak5.setVisibility(View.INVISIBLE);
         tvKorak6 = findViewById(R.id.TVKorak6);
+        tvKorak6.setVisibility(View.INVISIBLE);
         tvKorak7 = findViewById(R.id.TVKorak7);
+        tvKorak7.setVisibility(View.INVISIBLE);
         etOdgovor = findViewById(R.id.ETOdgovor1);
         btnKorak = findViewById(R.id.btnKorak);
+
+
+        stepId = 1;
+        stepCounter = 1;
+        String[] stepDetails = databaseHelper.getStep(stepId);
+        correctAnswer = stepDetails[7];
+        displaySteps(stepDetails);
+
+        // Dodaj click listenere na odgovore
+        btnKorak.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkAnswer(etOdgovor.getText().toString());
+            }
+        });
+
     }
+
+    private void displaySteps(String[] stepDetails) {
+        // Prikazi pitanje
+
+        String step1 = stepDetails[0];
+        String step2 = stepDetails[1];
+        String step3 = stepDetails[2];
+        String step4 = stepDetails[3];
+        String step5 = stepDetails[4];
+        String step6 = stepDetails[5];
+        String step7 = stepDetails[6];
+
+        tvKorak1.setText(step1);
+        tvKorak2.setText(step2);
+        tvKorak3.setText(step3);
+        tvKorak4.setText(step4);
+        tvKorak5.setText(step5);
+        tvKorak6.setText(step6);
+        tvKorak7.setText(step7);
+
+    }
+
+    private void checkAnswer(String answer) {
+        // Proveri da li je odabrani odgovor tačan
+        String answer1 = answer.toLowerCase();
+        if (answer1.equals(correctAnswer)) {
+            tvKorak2.setVisibility(View.VISIBLE);
+            tvKorak3.setVisibility(View.VISIBLE);
+            tvKorak4.setVisibility(View.VISIBLE);
+            tvKorak5.setVisibility(View.VISIBLE);
+            tvKorak6.setVisibility(View.VISIBLE);
+            tvKorak7.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Čestitamo! "+correctAnswer+" je tačno!", Toast.LENGTH_SHORT).show();
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+            }, 2000);
+
+        } else {
+            stepCounter++;
+            switch (stepCounter) {
+                case 2:
+                    tvKorak2.setVisibility(View.VISIBLE);
+                    break;
+                case 3:
+                    tvKorak3.setVisibility(View.VISIBLE);
+                    break;
+                case 4:
+                    tvKorak4.setVisibility(View.VISIBLE);
+                    break;
+                case 5:
+                    tvKorak5.setVisibility(View.VISIBLE);
+                    break;
+                case 6:
+                    tvKorak6.setVisibility(View.VISIBLE);
+                    break;
+                case 7:
+                    tvKorak7.setVisibility(View.VISIBLE);
+                    break;
+                default:
+                    Toast.makeText(this, "Niste pogodili. Odgovor je "+correctAnswer+".", Toast.LENGTH_SHORT).show();
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    }, 2000);
+                    break;
+            }
+        }
+
+    }
+
 }
