@@ -173,9 +173,12 @@ public class SkockoActivity extends AppCompatActivity {
         }
 
         // Prikažite rezultat u TextView-u
-        TextView resultTextView = findViewById(R.id.TVhint7);
-        String resultText = "Tačno: " + correctSymbols + ", Pogrešno mesto: " + misplacedSymbols;
-        resultTextView.setText(resultText);
+        int textViewId = getResources().getIdentifier("TVhint" + attemptCount, "id", getPackageName());
+        TextView textView = findViewById(textViewId);
+        //TextView resultTextView = findViewById(R.id.TVhint7);
+        String resultText = "T: " + correctSymbols + ", NNSM: " + misplacedSymbols;
+        //resultTextView.setText(resultText);
+        textView.setText(resultText);
 
         // Proverite da li je korisnik pogodio kombinaciju ili dostigao maksimalan broj pokušaja
         if (correctSymbols == 4) {

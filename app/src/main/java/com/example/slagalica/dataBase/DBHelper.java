@@ -44,9 +44,11 @@ public class DBHelper extends SQLiteOpenHelper {
                 "column21 TEXT, column22 TEXT, column23 TEXT, column24 TEXT, columnAnswer2 TEXT," +
                 "column31 TEXT, column32 TEXT, column33 TEXT, column34 TEXT, columnAnswer3 TEXT," +
                 "column41 TEXT, column42 TEXT, column43 TEXT, column44 TEXT, columnAnswer4 TEXT, correct_answer TEXT)";
+        String createTableConnect2 = "CREATE TABLE connect2 (id INTEGER PRIMARY KEY AUTOINCREMENT, connection1 TEXT, connection2 TEXT, connection3 TEXT, connection4 TEXT, connection5 TEXT)";
         db.execSQL(createTableAssociations);
         db.execSQL(createTableQuery);
         db.execSQL(createTableSteps);
+        db.execSQL(createTableConnect2);
         db.execSQL(createTableQuestions);
 
     }
@@ -141,6 +143,19 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert("associations", null, values);
     }
 
+    public void insertConnections(String connection1, String connection2, String connection3, String connection4, String connection5) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put("connection1", connection1);
+        values.put("connection2", connection2);
+        values.put("connection3", connection3);
+        values.put("connection4", connection4);
+        values.put("connection5", connection5);
+
+        db.insert("connect2", null, values);
+    }
+
     @SuppressLint("Range")
     public String[] getQuestion(int questionId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -231,6 +246,30 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return stepDetails;
+    }
+
+    @SuppressLint("Range")
+    public String[] getConnections(int connectionId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] connectionDetails = new String[6]; // Assuming you have 6 columns in your question table
+
+        // Query the database to retrieve the question and its details based on the questionId
+        String query = "SELECT * FROM connect2 WHERE id = " + connectionId;
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            // Retrieve the question details from the cursor
+            connectionDetails[0] = cursor.getString(cursor.getColumnIndex("connection1"));
+            connectionDetails[1] = cursor.getString(cursor.getColumnIndex("connection2"));
+            connectionDetails[2] = cursor.getString(cursor.getColumnIndex("connection3"));
+            connectionDetails[3] = cursor.getString(cursor.getColumnIndex("connection4"));
+            connectionDetails[4] = cursor.getString(cursor.getColumnIndex("connection5"));
+        }
+
+        cursor.close();
+        db.close();
+
+        return connectionDetails;
     }
 
     public Cursor getProfileCursor(String username) {

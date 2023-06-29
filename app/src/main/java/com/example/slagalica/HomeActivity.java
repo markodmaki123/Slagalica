@@ -22,6 +22,7 @@ import com.example.slagalica.games.KoZnaZnaActivity;
 import com.example.slagalica.games.KorakPoKorakActivity;
 import com.example.slagalica.games.MojBrojActivity;
 import com.example.slagalica.games.SkockoActivity;
+import com.example.slagalica.games.SpojniceActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.BufferedReader;
@@ -42,6 +43,8 @@ public class HomeActivity extends AppCompatActivity {
     private Button btnKorak;
     private Button btnAso;
     private Button btnSkocko;
+
+    private Button btnSpojnice;
 
 
     private ServerSocket serverSocket;
@@ -68,6 +71,7 @@ public class HomeActivity extends AppCompatActivity {
         btnKorak = findViewById(R.id.BTNKorakPoKorak);
         btnAso = findViewById(R.id.BTNAso);
         btnSkocko = findViewById(R.id.BTNSkocko);
+        btnSpojnice = findViewById(R.id.BTNSpojnice);
 
         // Postavljanje toggle dugmeta za Navigation Drawer
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, android.R.string.ok, android.R.string.ok);
@@ -151,6 +155,15 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 Intent intent = new Intent(HomeActivity.this, SkockoActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnSpojnice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(HomeActivity.this, SpojniceActivity.class);
                 startActivity(intent);
             }
         });
