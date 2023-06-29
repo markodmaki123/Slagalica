@@ -46,6 +46,14 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@id/BTNKorakPoKorak"
             android:text="Zapocni Aso" />
+
+        <Button
+            android:id="@+id/BTNSkocko"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/BTNAso"
+            android:text="Skocko" />
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
