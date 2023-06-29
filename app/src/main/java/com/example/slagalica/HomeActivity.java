@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 
+import com.example.slagalica.games.KoZnaZnaActivity;
 import com.example.slagalica.games.MojBrojActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -34,6 +35,8 @@ public class HomeActivity extends AppCompatActivity {
     private ActionBarDrawerToggle drawerToggle;
     private NavigationView navigationView;
     private Button btnZapocni;
+    private Button btnKoZnaZna;
+
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
@@ -55,6 +58,8 @@ public class HomeActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigationView);
         btnZapocni = findViewById(R.id.BTNzapocniIgru);
+        btnKoZnaZna = findViewById(R.id.BTNKoznaZna);
+
 
         // Postavljanje toggle dugmeta za Navigation Drawer
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, android.R.string.ok, android.R.string.ok);
@@ -103,6 +108,15 @@ public class HomeActivity extends AppCompatActivity {
 
                 //    Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
                //     startActivity(intent);
+            }
+        });
+
+        btnKoZnaZna.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(HomeActivity.this, KoZnaZnaActivity .class);
+                startActivity(intent);
             }
         });
     }

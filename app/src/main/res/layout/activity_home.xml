@@ -22,6 +22,14 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@id/toolbar"
             android:text="Zapocni igru" />
+
+        <Button
+            android:id="@+id/BTNKoznaZna"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/BTNzapocniIgru"
+            android:text="Zapocni igru" />
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView
