@@ -38,11 +38,11 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         databaseHelper = new DBHelper(this);
 
         // Ubacite pitanja u bazu podataka
-        databaseHelper.insertQuestion("Koja planeta je najbliža Suncu?", "Merkur", "Venera", "Mars", "Saturn",0);
-        databaseHelper.insertQuestion("Koliko je 2 + 2?", "3", "4", "5", "6",1);
-        databaseHelper.insertQuestion("Koja je najveća reka u Evropi?", "Dunav", "Volga", "Rajna", "Tisa",1);
-        databaseHelper.insertQuestion("Ko je autor knjige 'Rat i mir'?", "Lev Tolstoj", "Fjodor Dostojevski", "Anton Pavlovič Čehov", "Ivan Turgenjev",0);
-        databaseHelper.insertQuestion("Ko je napisao dramu 'Hamlet'?", "William Shakespeare", "Arthur Miller", "Antonin Artaud", "Samuel Beckett",0);
+        databaseHelper.insertQuestion("Koja planeta je najbliža Suncu?", "Merkur", "Venera", "Mars", "Saturn", 0);
+        databaseHelper.insertQuestion("Koliko je 2 + 2?", "3", "4", "5", "6", 1);
+        databaseHelper.insertQuestion("Koja je najveća reka u Evropi?", "Dunav", "Volga", "Rajna", "Tisa", 1);
+        databaseHelper.insertQuestion("Ko je autor knjige 'Rat i mir'?", "Lev Tolstoj", "Fjodor Dostojevski", "Anton Pavlovič Čehov", "Ivan Turgenjev", 0);
+        databaseHelper.insertQuestion("Ko je napisao dramu 'Hamlet'?", "William Shakespeare", "Arthur Miller", "Antonin Artaud", "Samuel Beckett", 0);
 
 
         tvPitanje = findViewById(R.id.TVPitanje);
@@ -135,10 +135,10 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
                 // Ažuriranje trenutnog pitanja, odgovora i tačnog odgovora
                 // Možete koristiti funkciju getQuestion() iz DBHelper klase
-                String[] nextQuestion = databaseHelper.getQuestion(questionId+1);
-                questionId+=1;
-                if(questionId>5){
-                    Intent intent = new Intent(KoZnaZnaActivity.this, HomeActivity .class);
+                String[] nextQuestion = databaseHelper.getQuestion(questionId + 1);
+                questionId += 1;
+                if (questionId > 5) {
+                    Intent intent = new Intent(KoZnaZnaActivity.this, HomeActivity.class);
                     startActivity(intent);
                 }
                 if (nextQuestion != null) {
@@ -156,12 +156,13 @@ public class KoZnaZnaActivity extends AppCompatActivity {
                 } else {
                     // Nema više pitanja, možete implementirati odgovarajuću logiku
                     // za završetak igre ili povratak na početnu aktivnost
-                    Intent intent = new Intent(KoZnaZnaActivity.this, HomeActivity .class);
+                    Intent intent = new Intent(KoZnaZnaActivity.this, HomeActivity.class);
                     startActivity(intent);
                 }
             }
         }, 3000);
     }
+
     private void resetAnswerColors() {
         tvOdgovor1.setBackgroundColor(Color.TRANSPARENT);
         tvOdgovor2.setBackgroundColor(Color.TRANSPARENT);

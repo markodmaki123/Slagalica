@@ -7,7 +7,7 @@
     tools:context=".games.KorakPoKorakActivity">
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/TVKorak1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -18,7 +18,7 @@
         app:layout_constraintVertical_bias="0.10" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/TVKorak2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -30,7 +30,7 @@
 
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/TVKorak3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -41,7 +41,7 @@
         app:layout_constraintVertical_bias="0.30" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/TVKorak4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -52,7 +52,7 @@
         app:layout_constraintVertical_bias="0.40" />
 
     <TextView
-        android:id="@+id/textView6"
+        android:id="@+id/TVKorak5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -63,7 +63,7 @@
         app:layout_constraintVertical_bias="0.50"/>
 
     <TextView
-        android:id="@+id/textView7"
+        android:id="@+id/TVKorak6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -74,7 +74,7 @@
         app:layout_constraintVertical_bias="0.60"/>
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/TVKorak7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
@@ -85,20 +85,19 @@
         app:layout_constraintVertical_bias="0.70"/>
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/ETOdgovor1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text"
-        android:text="Name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.80"/>
+        app:layout_constraintVertical_bias="0.80" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btnKorak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Button"
