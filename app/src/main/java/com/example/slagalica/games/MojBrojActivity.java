@@ -2,7 +2,14 @@ package com.example.slagalica.games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,16 +20,26 @@ import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
 import com.example.slagalica.R;
+import com.example.slagalica.dataBase.ConnectionService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class MojBrojActivity extends AppCompatActivity {
+
+    private ConnectionService connectionService;
+    private boolean isBound = false;
 
     private TextView tvTrazeniBroj;
     private TextView tvJednocifreni1;
@@ -33,9 +50,25 @@ public class MojBrojActivity extends AppCompatActivity {
     private TextView tvVeliki;
     private Button btnStop;
     private Button btnStart;
+
+    private Button btnReceive;
     private EditText etResenje;
 
 
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionService.ConnectionServiceBinder binder = (ConnectionService.ConnectionServiceBinder) service;
+            connectionService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            connectionService = null;
+            isBound = false;
+        }
+    };
 
 
     @Override
@@ -43,6 +76,10 @@ public class MojBrojActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_moj_broj);
 
+
+
+        Intent intent = new Intent(this, ConnectionService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
 
         tvTrazeniBroj = findViewById(R.id.TVTrazeniBroj);
@@ -53,13 +90,45 @@ public class MojBrojActivity extends AppCompatActivity {
         tvSrednji = findViewById(R.id.TVSrednji);
         tvVeliki = findViewById(R.id.TVVeliki);
         btnStop = findViewById(R.id.BTNStop);
+        btnReceive = findViewById(R.id.BTNReceive);
         btnStart = findViewById(R.id.BTNStart);
         etResenje = findViewById(R.id.ETResenje);
+
+        boolean isServer = getIntent().getBooleanExtra("IS_SERVER", false);
+        if (!isServer) {
+            btnStop.setVisibility(View.INVISIBLE);
+        } else {
+            btnReceive.setVisibility(View.INVISIBLE);
+        }
+
+        /*boolean isHost = isHost();
+        if (isHost) {
+            connectionService.connectToServerMessage(); //klijent
+        } else {
+             //server
+
+        }*/
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 generisiBrojeve();
+                // Prepare the GUI state as a Map<String, String>
+                if (isServer) {
+                    Map<String, String> guiState = new HashMap<>();
+                    guiState.put("jednocifreni1", tvJednocifreni1.getText().toString());
+                    guiState.put("jednocifreni2", tvJednocifreni2.getText().toString());
+                    guiState.put("jednocifreni3", tvJednocifreni3.getText().toString());
+                    guiState.put("jednocifreni4", tvJednocifreni4.getText().toString());
+                    guiState.put("srednji", tvSrednji.getText().toString());
+                    guiState.put("veliki", tvVeliki.getText().toString());
+                    guiState.put("trazeniBroj", tvTrazeniBroj.getText().toString());
+
+                    // Send the GUI state to the client
+                    if (connectionService != null) {
+                        //connectionService.sendMessage(guiState);
+                    }
+                }
             }
         });
 
@@ -69,17 +138,25 @@ public class MojBrojActivity extends AppCompatActivity {
                 proveriResenje();
             }
         });
-        int trazeniBroj = generisiSlucajniBroj();
-        tvTrazeniBroj.setText(String.valueOf(trazeniBroj));
+
+        btnReceive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateGUI();
+            }
+        });
+
     }
 
     private int generisiSlucajniBroj() {
         // Generisanje slučajnog broja od 1 do 100
         Random random = new Random();
         return random.nextInt(999) + 1;
+
     }
 
     private void generisiBrojeve() {
+        int trazeniBroj = generisiSlucajniBroj();
         Random random = new Random();
 
         // Generisanje prvih četiri jednocifrena broja
@@ -124,6 +201,7 @@ public class MojBrojActivity extends AppCompatActivity {
         tvJednocifreni4.setText(String.valueOf(jednocifreni4));
         tvSrednji.setText(String.valueOf(srednji));
         tvVeliki.setText(String.valueOf(zadnji));
+        tvTrazeniBroj.setText(String.valueOf(trazeniBroj));
     }
 
     private int izracunajKompleksniIzraz(String izraz) {
@@ -141,12 +219,12 @@ public class MojBrojActivity extends AppCompatActivity {
     private void proveriResenje() {
         // Provjeri da li su svi uneseni brojevi prisutni u ponuđenim brojevima
 
-            String unesenoResenje = etResenje.getText().toString();
-            int trazeniBroj = Integer.parseInt(tvTrazeniBroj.getText().toString());
+        String unesenoResenje = etResenje.getText().toString();
+        int trazeniBroj = Integer.parseInt(tvTrazeniBroj.getText().toString());
 
-            // Provera tačnosti rešenja
-            int rezultat = izracunajKompleksniIzraz(unesenoResenje);
-            boolean tacno = rezultat == trazeniBroj;
+        // Provera tačnosti rešenja
+        int rezultat = izracunajKompleksniIzraz(unesenoResenje);
+        boolean tacno = rezultat == trazeniBroj;
 
         // Provera da li su brojevi u rešenju prisutni u ponuđenim brojevima
         List<Integer> ponudjeniBrojevi = new ArrayList<>();
@@ -177,5 +255,51 @@ public class MojBrojActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Neki brojevi u rešenju ne postoje među ponuđenim brojevima.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void updateGUI() {
+        Map<String, String> guiState = connectionService.getMessageMap();
+
+        tvJednocifreni1.setText(guiState.get("jednocifreni1"));
+        tvJednocifreni2.setText(guiState.get("jednocifreni2"));
+        tvJednocifreni3.setText(guiState.get("jednocifreni3"));
+        tvJednocifreni4.setText(guiState.get("jednocifreni4"));
+        tvSrednji.setText(guiState.get("srednji"));
+        tvVeliki.setText(guiState.get("veliki"));
+        tvTrazeniBroj.setText(guiState.get("trazeniBroj"));
+    }
+
+    private boolean isHost() {
+
+        boolean isServer = getIntent().getBooleanExtra("IS_SERVER", false);
+
+        if (!isServer) {
+            try {
+                final int timeout = 3000; // 5000 milisekundi (5 sekundi)
+                final int port = 1234; // Odaberite prikladni port
+
+                AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+                    @SuppressLint("StaticFieldLeak")
+                    @Override
+                    protected Boolean doInBackground(Void... voids) {
+                        try {
+                            Socket testSocket = new Socket();
+                            testSocket.connect(new InetSocketAddress("192.168.0.12", port), timeout); // Zamijenite sa stvarnom IP adresom domaćina (servera)
+                            testSocket.close();
+                            return true;
+                        } catch (IOException e) {
+                            return false;
+                        }
+                    }
+                };
+                return task.execute().get(); // Pokreće se asinkroni zadatak i čeka se rezultat
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
+            return false;
+        }
+
     }
 }

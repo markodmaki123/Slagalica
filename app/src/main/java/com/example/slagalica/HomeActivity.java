@@ -10,13 +10,23 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.NetworkOnMainThreadException;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import androidx.appcompat.app.AppCompatActivity;
 
+
+import com.example.slagalica.dataBase.ConnectionService;
 import com.example.slagalica.games.AsocijacijeActivity;
 import com.example.slagalica.games.KoZnaZnaActivity;
 import com.example.slagalica.games.KorakPoKorakActivity;
@@ -36,6 +46,8 @@ import java.net.Socket;
 public class HomeActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
+    private ConnectionService connectionService;
+    private boolean isBound = false;
     private ActionBarDrawerToggle drawerToggle;
     private NavigationView navigationView;
     private Button btnZapocni;
@@ -46,13 +58,31 @@ public class HomeActivity extends AppCompatActivity {
 
     private Button btnSpojnice;
 
+    private Button btnTest;
+    private Button btnTestSend;
+
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
     private BufferedReader input;
     private PrintWriter output;
-    private static final int DELAY_CHECK_HOST = 5000; // 5000 milisekundi (5 sekundi)
+    private static final int DELAY_CHECK_HOST = 2000;
     private Handler handler = new Handler();
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ConnectionService.ConnectionServiceBinder binder = (ConnectionService.ConnectionServiceBinder) service;
+            connectionService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            connectionService = null;
+            isBound = false;
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +102,16 @@ public class HomeActivity extends AppCompatActivity {
         btnAso = findViewById(R.id.BTNAso);
         btnSkocko = findViewById(R.id.BTNSkocko);
         btnSpojnice = findViewById(R.id.BTNSpojnice);
+        btnTest = findViewById(R.id.BTNtest);
+        btnTestSend = findViewById(R.id.BTNtestSend);
 
         // Postavljanje toggle dugmeta za Navigation Drawer
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, android.R.string.ok, android.R.string.ok);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
+
+        Intent intent = new Intent(this, ConnectionService.class);
+        bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -110,10 +145,11 @@ public class HomeActivity extends AppCompatActivity {
                     public void run() {
                         boolean isHost = isHost();
                         if (isHost) {
-                            connectToServer();
+                            connectionService.connectToServer(isHost); //klijent
+                            btnTestSend.setVisibility(View.INVISIBLE);
                         } else {
-                            startServer();
-
+                            connectionService.startServer(isHost); //server
+                            btnTest.setVisibility(View.INVISIBLE);
                         }
                     }
                 }, DELAY_CHECK_HOST);
@@ -167,6 +203,29 @@ public class HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        btnTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                connectionService.sendMessage("Zdravo ovo je poruka od marka");
+
+                // Wait for a short delay before attempting to receive the message
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        connectionService.receiveMessage();
+                    }
+                }, 1000); // Adjust the delay time as needed
+            }
+        });
+
+        btnTestSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                connectionService.sendMessage("Zdravo ovo je poruka od milosa");
+            }
+        });
     }
 
 
@@ -188,103 +247,40 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private boolean isHost() {
-        try {
-            final int timeout = 5000; // 5000 milisekundi (5 sekundi)
-            final int port = 1234; // Odaberite prikladni port
 
-            AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-                @SuppressLint("StaticFieldLeak")
-                @Override
-                protected Boolean doInBackground(Void... voids) {
-                    try {
-                        Socket testSocket = new Socket();
-                        testSocket.connect(new InetSocketAddress("192.168.0.12", port), timeout); // Zamijenite sa stvarnom IP adresom domaćina (servera)
-                        testSocket.close();
-                        return true;
-                    } catch (IOException e) {
-                        return false;
+        boolean isServer = getIntent().getBooleanExtra("IS_SERVER",false);
+
+        if(!isServer) {
+            try {
+                final int timeout = 3000; // 5000 milisekundi (5 sekundi)
+                final int port = 1234; // Odaberite prikladni port
+
+                AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
+                    @SuppressLint("StaticFieldLeak")
+                    @Override
+                    protected Boolean doInBackground(Void... voids) {
+                        try {
+                            Socket testSocket = new Socket();
+                            testSocket.connect(new InetSocketAddress("192.168.0.12", port), timeout); // Zamijenite sa stvarnom IP adresom domaćina (servera)
+                            testSocket.close();
+                            return true;
+                        } catch (IOException e) {
+                            return false;
+                        }
                     }
-                }
-            };
-            return task.execute().get(); // Pokreće se asinkroni zadatak i čeka se rezultat
-        } catch (Exception e) {
-            e.printStackTrace();
+                };
+                return task.execute().get(); // Pokreće se asinkroni zadatak i čeka se rezultat
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        } else {
             return false;
         }
+
     }
 
-    private void startServer() {
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                try {
-                    serverSocket = new ServerSocket(1234); // Odaberite prikladni port
-                    clientSocket = serverSocket.accept();
-                    input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    output = new PrintWriter(clientSocket.getOutputStream(), true);
 
-                    // Primanje i slanje poruka
-
-                    return null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        startGameActivity(true); // Pokreni novu aktivnost kao domaćin (server)
-                    }
-                });
-            }
-        };
-
-        task.execute(); // Pokreće se asinkroni zadatak
-    }
-
-    private void connectToServer() {
-        AsyncTask<Void, Void, Boolean> task = new AsyncTask<Void, Void, Boolean>() {
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                try {
-                    String serverIp = "192.168.0.12"; // Zamijenite s IP adresom domaćina (servera)
-                    int port = 1234; // Zamijenite s odgovarajućim portom
-
-                    clientSocket = new Socket(serverIp, port);
-
-                    input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    output = new PrintWriter(clientSocket.getOutputStream(), true);
-
-                    return true;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-
-            @Override
-            protected void onPostExecute(Boolean isConnected) {
-                if (isConnected) {
-                    startGameActivity(false); // Pokreni novu aktivnost kao klijent
-                } else {
-                    // Neuspjeh pri povezivanju s serverom
-                    // Ovdje možete dodati odgovarajuće postupke u slučaju neuspjeha
-                }
-            }
-        };
-
-        task.execute();
-    }
-
-    private void sendMessage(String message) {
-        output.println(message);
-    }
-
-    // Ostatak koda vaše aktivnosti...
 
     @Override
     protected void onDestroy() {
@@ -308,6 +304,11 @@ public class HomeActivity extends AppCompatActivity {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (isBound) {
+            unbindService(connection);
+            isBound = false;
         }
         // Uklanjanje odgođenog zadatka ako je aktivnost uništena prije isteka vremena
         handler.removeCallbacksAndMessages(null);
