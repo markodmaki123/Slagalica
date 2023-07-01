@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
@@ -31,9 +32,21 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private EditText etOdgovor;
     private Button btnKorak;
 
+    private TextView timerView;
+    private TextView bodoviView;
+    private CountDownTimer timer;
+    private boolean timerActive = false;
+    private long startTimer = 60000;
+
+    private String checkGuest = "guest";
+    private String guest;
+    private int bodovi;
+
     private String correctAnswer;
 
     private int stepCounter;
+
+    private int stepWrong;
 
     private int stepId;
 
@@ -43,6 +56,8 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         setContentView(R.layout.activity_korak_po_korak);
 
         databaseHelper = new DBHelper(this);
+
+        stepWrong = 0;
 
         // Ubacite pitanja u bazu podataka
         databaseHelper.insertSteps("Ima veze sa Savom i Dunavom",
@@ -54,6 +69,9 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                 "Postoji i CASCO varijanta",
                 "osiguranje"
                 );
+
+        guest = getIntent().getStringExtra("user");
+        bodovi = getIntent().getIntExtra("bodovi", 0);
 
 
         tvKorak1 = findViewById(R.id.TVKorak1);
@@ -71,6 +89,10 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         tvKorak7.setVisibility(View.INVISIBLE);
         etOdgovor = findViewById(R.id.ETOdgovor1);
         btnKorak = findViewById(R.id.btnKorak);
+        timerView = findViewById(R.id.TVTimer);
+        bodoviView = findViewById(R.id.TVBodovi);
+
+        bodoviView.setText(String.valueOf(bodovi));
 
 
         stepId = 1;
@@ -86,6 +108,8 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                 checkAnswer(etOdgovor.getText().toString());
             }
         });
+
+        startTimer(startTimer);
 
     }
 
@@ -121,11 +145,17 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             tvKorak6.setVisibility(View.VISIBLE);
             tvKorak7.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Čestitamo! "+correctAnswer+" je tačno!", Toast.LENGTH_SHORT).show();
+            etOdgovor.setEnabled(false);
+            bodovi = bodovi + (20-(stepWrong*2));
+            bodoviView.setText(String.valueOf(bodovi));
+            timer.cancel();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(KorakPoKorakActivity.this, SpojniceActivity.class);
+                    intent.putExtra("user","guest");
+                    intent.putExtra("bodovi",bodovi);
                     startActivity(intent);
                     finish();
                 }
@@ -133,6 +163,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
 
         } else {
             stepCounter++;
+            stepWrong++;
             switch (stepCounter) {
                 case 2:
                     tvKorak2.setVisibility(View.VISIBLE);
@@ -154,11 +185,15 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                     break;
                 default:
                     Toast.makeText(this, "Niste pogodili. Odgovor je "+correctAnswer+".", Toast.LENGTH_SHORT).show();
+                    timer.cancel();
+                    bodoviView.setText(String.valueOf(bodovi));
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
+                            Intent intent = new Intent(KorakPoKorakActivity.this, SpojniceActivity.class);
+                            intent.putExtra("user","guest");
+                            intent.putExtra("bodovi",bodovi);
                             startActivity(intent);
                             finish();
                         }
@@ -167,6 +202,38 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void startTimer(long time) {
+        timer = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateTimerText(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                timerView.setText("00");
+                timerActive = false;
+                Toast.makeText(KorakPoKorakActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
+                timer.cancel();
+                Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
+                intent.putExtra("user","guest");
+                intent.putExtra("bodovi",bodovi);
+                startActivity(intent);
+                finish();
+            }
+        };
+
+        timer.start();
+        timerActive = true;
+    }
+
+    private void updateTimerText(long millisUntilFinished) {
+        int seconds = (int) (millisUntilFinished / 1000);
+
+        String time = String.format("%02d", seconds);
+        timerView.setText(time);
     }
 
 }

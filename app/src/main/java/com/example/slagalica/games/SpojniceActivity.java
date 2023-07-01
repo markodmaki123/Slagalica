@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
@@ -36,6 +37,16 @@ public class SpojniceActivity extends AppCompatActivity {
     private TextView tvSpojica24;
     private TextView tvSpojica25;
 
+    private TextView timerView;
+    private TextView bodoviView;
+    private CountDownTimer timer;
+    private boolean timerActive = false;
+    private long startTimer = 60000;
+
+    private String checkGuest = "guest";
+    private String guest;
+    private int bodovi;
+
     private int connectionCounter;
     private int correctCounter;
 
@@ -47,6 +58,9 @@ public class SpojniceActivity extends AppCompatActivity {
         setContentView(R.layout.activity_spojnice);
 
         databaseHelper = new DBHelper(this);
+
+        guest = getIntent().getStringExtra("user");
+        bodovi = getIntent().getIntExtra("bodovi", 0);
 
         // Ubacite pitanja u bazu podataka
         databaseHelper.insertConnections("Novak;Djokovic",
@@ -67,11 +81,18 @@ public class SpojniceActivity extends AppCompatActivity {
         tvSpojica24 = findViewById(R.id.kolona24);
         tvSpojica25 = findViewById(R.id.kolona25);
 
+        timerView = findViewById(R.id.TVTimer);
+        bodoviView = findViewById(R.id.TVBodovi);
+
+        bodoviView.setText(String.valueOf(bodovi));
+
         connectionId = 1;
         connectionCounter = 0;
         correctCounter = 0;
         String[] connectionDetails = databaseHelper.getConnections(connectionId);
         displayConnections(connectionDetails);
+
+        startTimer(startTimer);
 
         View.OnClickListener answerClickListener = new View.OnClickListener() {
             @Override
@@ -158,6 +179,8 @@ public class SpojniceActivity extends AppCompatActivity {
             textView.setBackgroundColor(Color.GREEN);
             v.setBackgroundColor(Color.GREEN);
             v.setEnabled(false);
+            bodovi = bodovi + 2;
+            bodoviView.setText(String.valueOf(bodovi));
             correctCounter++;
         } else {
             int textViewId = getResources().getIdentifier("kolona" + 1 + (connectionCounter+1), "id", getPackageName());
@@ -167,11 +190,15 @@ public class SpojniceActivity extends AppCompatActivity {
 
         if(connectionCounter==4){
             Toast.makeText(this, "Igra se zavrsila. Pogodjenih spojnica: "+correctCounter+".", Toast.LENGTH_SHORT).show();
+            bodoviView.setText(String.valueOf(bodovi));
+            timer.cancel();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(SpojniceActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(SpojniceActivity.this, AsocijacijeActivity.class);
+                    intent.putExtra("user","guest");
+                    intent.putExtra("bodovi",bodovi);
                     startActivity(intent);
                     finish();
                 }
@@ -179,5 +206,37 @@ public class SpojniceActivity extends AppCompatActivity {
         } else {
             connectionCounter++;
         }
+    }
+
+    private void startTimer(long time) {
+        timer = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateTimerText(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                timerView.setText("00");
+                timerActive = false;
+                timer.cancel();
+                Toast.makeText(SpojniceActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(SpojniceActivity.this, AsocijacijeActivity.class);
+                intent.putExtra("user","guest");
+                intent.putExtra("bodovi",bodovi);
+                startActivity(intent);
+                finish();
+            }
+        };
+
+        timer.start();
+        timerActive = true;
+    }
+
+    private void updateTimerText(long millisUntilFinished) {
+        int seconds = (int) (millisUntilFinished / 1000);
+
+        String time = String.format("%02d", seconds);
+        timerView.setText(time);
     }
 }

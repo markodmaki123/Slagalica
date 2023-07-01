@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
@@ -49,6 +50,18 @@ public class AsocijacijeActivity extends AppCompatActivity {
 
     private String correctAnswer;
 
+    private TextView timerView;
+    private TextView bodoviView;
+    private CountDownTimer timer;
+    private boolean timerActive = false;
+    private long startTimer = 60000;
+
+    private String checkGuest = "guest";
+    private String guest;
+    private int bodovi;
+
+    private int bodoviMax,bodoviMaxKolona;
+
     private int counterLifes;
     private String[] associationDetails;
 
@@ -60,6 +73,10 @@ public class AsocijacijeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_asocijacije);
 
         databaseHelper = new DBHelper(this);
+
+        guest = getIntent().getStringExtra("user");
+        bodovi = getIntent().getIntExtra("bodovi", 0);
+        bodoviMax = 31;
 
         databaseHelper.insertAssociations("SALATA", "JUG",
                 "KIVI", "MANGO",
@@ -73,6 +90,11 @@ public class AsocijacijeActivity extends AppCompatActivity {
                 "KRALJICA", "AFRIKA",
                 "SLJIVA"
         );
+
+        timerView = findViewById(R.id.TVTimer);
+        bodoviView = findViewById(R.id.TVBodovi);
+
+        bodoviView.setText(String.valueOf(bodovi));
 
         tvKolona11 = findViewById(R.id.kolona11);
         String kolona11 = "Kolona 11";
@@ -243,6 +265,8 @@ public class AsocijacijeActivity extends AppCompatActivity {
                         etKolonaOdgovor3.getText().toString(), etKolonaOdgovor4.getText().toString(),etOdgovorKonacno.getText().toString());
             }
         });
+
+        startTimer(startTimer);
     }
 
 
@@ -255,77 +279,97 @@ public class AsocijacijeActivity extends AppCompatActivity {
         String answer4 = kolonaOdogovor4.toUpperCase();
         String answer5 = konacniOdogovor.toUpperCase();
         if (answer5.equals(correctAnswer)) {
-            tvKolona11.setText(associationDetails[0]);
-            tvKolona12.setText(associationDetails[1]);
-            tvKolona13.setText(associationDetails[2]);
-            tvKolona14.setText(associationDetails[3]);
-            etKolonaOdgovor1.setText(associationDetails[4]);
+            if(!tvKolona11.getText().toString().equals(associationDetails[0])){tvKolona11.setText(associationDetails[0]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona12.getText().toString().equals(associationDetails[1])){tvKolona12.setText(associationDetails[1]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona13.getText().toString().equals(associationDetails[2])){tvKolona13.setText(associationDetails[2]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona14.getText().toString().equals(associationDetails[3])){tvKolona14.setText(associationDetails[3]);} else {bodoviMax = bodoviMax - 1;}
+            if(!etKolonaOdgovor1.getText().toString().equals("1."+associationDetails[4])){etKolonaOdgovor1.setText(associationDetails[4]);} else {bodoviMax = bodoviMax - 2;}
 
-            tvKolona21.setText(associationDetails[5]);
-            tvKolona22.setText(associationDetails[6]);
-            tvKolona23.setText(associationDetails[7]);
-            tvKolona24.setText(associationDetails[8]);
-            etKolonaOdgovor2.setText(associationDetails[9]);
+            if(!tvKolona21.getText().toString().equals(associationDetails[5])){tvKolona21.setText(associationDetails[5]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona22.getText().toString().equals(associationDetails[6])){tvKolona22.setText(associationDetails[6]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona23.getText().toString().equals(associationDetails[7])){tvKolona23.setText(associationDetails[7]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona24.getText().toString().equals(associationDetails[8])){tvKolona24.setText(associationDetails[8]);} else {bodoviMax = bodoviMax - 1;}
+            if(!etKolonaOdgovor2.getText().toString().equals("2."+associationDetails[9])){etKolonaOdgovor2.setText(associationDetails[9]);} else {bodoviMax = bodoviMax - 2;}
 
-            tvKolona31.setText(associationDetails[10]);
-            tvKolona32.setText(associationDetails[11]);
-            tvKolona33.setText(associationDetails[12]);
-            tvKolona34.setText(associationDetails[13]);
-            etKolonaOdgovor3.setText(associationDetails[14]);
+            if(!tvKolona31.getText().toString().equals(associationDetails[10])){tvKolona31.setText(associationDetails[10]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona32.getText().toString().equals(associationDetails[11])){tvKolona32.setText(associationDetails[11]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona33.getText().toString().equals(associationDetails[12])){tvKolona33.setText(associationDetails[12]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona34.getText().toString().equals(associationDetails[13])){tvKolona34.setText(associationDetails[13]);} else {bodoviMax = bodoviMax - 1;}
+            if(!etKolonaOdgovor3.getText().toString().equals("3."+associationDetails[14])){etKolonaOdgovor3.setText(associationDetails[14]);} else {bodoviMax = bodoviMax - 2;}
 
-            tvKolona41.setText(associationDetails[15]);
-            tvKolona42.setText(associationDetails[16]);
-            tvKolona43.setText(associationDetails[17]);
-            tvKolona44.setText(associationDetails[18]);
-            etKolonaOdgovor4.setText(associationDetails[19]);
+            if(!tvKolona41.getText().toString().equals(associationDetails[15])){tvKolona41.setText(associationDetails[15]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona42.getText().toString().equals(associationDetails[16])){tvKolona42.setText(associationDetails[16]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona43.getText().toString().equals(associationDetails[17])){tvKolona43.setText(associationDetails[17]);} else {bodoviMax = bodoviMax - 1;}
+            if(!tvKolona44.getText().toString().equals(associationDetails[18])){tvKolona44.setText(associationDetails[18]);} else {bodoviMax = bodoviMax - 1;}
+            if(!etKolonaOdgovor4.getText().toString().equals("4."+associationDetails[19])){etKolonaOdgovor4.setText(associationDetails[19]);} else {bodoviMax = bodoviMax - 2;}
             Toast.makeText(this, "Čestitamo! "+correctAnswer+" je tačno!", Toast.LENGTH_SHORT).show();
+            timer.cancel();
+            bodovi = bodovi + bodoviMax;
+            bodoviView.setText(String.valueOf(bodovi));
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent(AsocijacijeActivity.this, HomeActivity.class);
+                    Intent intent = new Intent(AsocijacijeActivity.this, SkockoActivity.class);
+                    intent.putExtra("user","guest");
+                    intent.putExtra("bodovi",bodovi);
                     startActivity(intent);
                     finish();
                 }
             }, 2000);
 
         } else if (answer1.equals(correctAnswer1)){
-            tvKolona11.setText(associationDetails[0]);
-            tvKolona12.setText(associationDetails[1]);
-            tvKolona13.setText(associationDetails[2]);
-            tvKolona14.setText(associationDetails[3]);
+            bodoviMaxKolona = 6;
+            if(!tvKolona11.getText().toString().equals(associationDetails[0])){tvKolona11.setText(associationDetails[0]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona12.getText().toString().equals(associationDetails[1])){tvKolona12.setText(associationDetails[1]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona13.getText().toString().equals(associationDetails[2])){tvKolona13.setText(associationDetails[2]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona14.getText().toString().equals(associationDetails[3])){tvKolona14.setText(associationDetails[3]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
             etKolonaOdgovor1.setText("1."+associationDetails[4]);
             etKolonaOdgovor1.setEnabled(false);
+            bodovi = bodovi + bodoviMaxKolona;
+            bodoviView.setText(String.valueOf(bodovi));
         } else if(answer2.equals(correctAnswer2)){
-            tvKolona21.setText(associationDetails[5]);
-            tvKolona22.setText(associationDetails[6]);
-            tvKolona23.setText(associationDetails[7]);
-            tvKolona24.setText(associationDetails[8]);
+            bodoviMaxKolona = 6;
+            if(!tvKolona21.getText().toString().equals(associationDetails[5])){tvKolona21.setText(associationDetails[5]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona22.getText().toString().equals(associationDetails[6])){tvKolona22.setText(associationDetails[6]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona23.getText().toString().equals(associationDetails[7])){tvKolona23.setText(associationDetails[7]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona24.getText().toString().equals(associationDetails[8])){tvKolona24.setText(associationDetails[8]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
             etKolonaOdgovor2.setText("2."+associationDetails[9]);
             etKolonaOdgovor2.setEnabled(false);
+            bodovi = bodovi + bodoviMaxKolona;
+            bodoviView.setText(String.valueOf(bodovi));
         } else if(answer3.equals(correctAnswer3)){
-            tvKolona31.setText(associationDetails[10]);
-            tvKolona32.setText(associationDetails[11]);
-            tvKolona33.setText(associationDetails[12]);
-            tvKolona34.setText(associationDetails[13]);
+            bodoviMaxKolona = 6;
+            if(!tvKolona31.getText().toString().equals(associationDetails[10])){tvKolona31.setText(associationDetails[10]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona32.getText().toString().equals(associationDetails[11])){tvKolona32.setText(associationDetails[11]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona33.getText().toString().equals(associationDetails[12])){tvKolona33.setText(associationDetails[12]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona34.getText().toString().equals(associationDetails[13])){tvKolona34.setText(associationDetails[13]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
             etKolonaOdgovor3.setText("3."+associationDetails[14]);
             etKolonaOdgovor3.setEnabled(false);
+            bodovi = bodovi + bodoviMaxKolona;
+            bodoviView.setText(String.valueOf(bodovi));
         } else if(answer4.equals(correctAnswer4)){
-            tvKolona41.setText(associationDetails[15]);
-            tvKolona42.setText(associationDetails[16]);
-            tvKolona43.setText(associationDetails[17]);
-            tvKolona44.setText(associationDetails[18]);
+            bodoviMaxKolona = 6;
+            if(!tvKolona41.getText().toString().equals(associationDetails[15])){tvKolona41.setText(associationDetails[15]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona42.getText().toString().equals(associationDetails[16])){tvKolona42.setText(associationDetails[16]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona43.getText().toString().equals(associationDetails[17])){tvKolona43.setText(associationDetails[17]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
+            if(!tvKolona44.getText().toString().equals(associationDetails[18])){tvKolona44.setText(associationDetails[18]);} else {bodoviMaxKolona = bodoviMaxKolona - 1;}
             etKolonaOdgovor4.setText("4."+associationDetails[19]);
             etKolonaOdgovor4.setEnabled(false);
+            bodovi = bodovi + bodoviMaxKolona;
+            bodoviView.setText(String.valueOf(bodovi));
         } else {
             counterLifes++;
-            if (counterLifes == 5){
+            if (counterLifes == 30){
                 Toast.makeText(this, "Niste pogodili! "+correctAnswer+" je konacan odgovor!", Toast.LENGTH_SHORT).show();
                 Handler handler = new Handler();
+                timer.cancel();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        Intent intent = new Intent(AsocijacijeActivity.this, HomeActivity.class);
+                        Intent intent = new Intent(AsocijacijeActivity.this, SkockoActivity.class);
+                        intent.putExtra("user","guest");
+                        intent.putExtra("bodovi",bodovi);
                         startActivity(intent);
                         finish();
                     }
@@ -333,5 +377,36 @@ public class AsocijacijeActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void startTimer(long time) {
+        timer = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateTimerText(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                timerView.setText("00");
+                timerActive = false;
+                timer.cancel();
+                Intent intent = new Intent(AsocijacijeActivity.this, HomeActivity.class);
+                intent.putExtra("user","guest");
+                intent.putExtra("bodovi",bodovi);
+                startActivity(intent);
+                finish();
+            }
+        };
+
+        timer.start();
+        timerActive = true;
+    }
+
+    private void updateTimerText(long millisUntilFinished) {
+        int seconds = (int) (millisUntilFinished / 1000);
+
+        String time = String.format("%02d", seconds);
+        timerView.setText(time);
     }
 }
