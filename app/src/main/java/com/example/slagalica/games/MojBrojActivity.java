@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
+import com.example.slagalica.LoginActivity;
 import com.example.slagalica.R;
 import com.example.slagalica.dataBase.ConnectionService;
 import com.google.gson.Gson;
@@ -48,8 +50,18 @@ public class MojBrojActivity extends AppCompatActivity {
     private TextView tvJednocifreni4;
     private TextView tvSrednji;
     private TextView tvVeliki;
+
+    private TextView timerView;
+    private TextView bodoviView;
+    private CountDownTimer timer;
+    private boolean timerActive = false;
+    private long startTimer = 60000;
+
     private Button btnStop;
     private Button btnStart;
+    private String checkGuest = "guest";
+    private String guest;
+    private int bodovi;
 
     private Button btnReceive;
     private EditText etResenje;
@@ -76,13 +88,15 @@ public class MojBrojActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_moj_broj);
 
-
+        guest = getIntent().getStringExtra("user");
 
         Intent intent = new Intent(this, ConnectionService.class);
         bindService(intent, connection, Context.BIND_AUTO_CREATE);
 
 
         tvTrazeniBroj = findViewById(R.id.TVTrazeniBroj);
+        timerView = findViewById(R.id.TVTimer);
+        bodoviView = findViewById(R.id.TVBodovi);
         tvJednocifreni1 = findViewById(R.id.TVJednocifreni1);
         tvJednocifreni2 = findViewById(R.id.TVJednocifreni2);
         tvJednocifreni3 = findViewById(R.id.TVJednocifreni3);
@@ -95,11 +109,19 @@ public class MojBrojActivity extends AppCompatActivity {
         etResenje = findViewById(R.id.ETResenje);
 
         boolean isServer = getIntent().getBooleanExtra("IS_SERVER", false);
+        if(!guest.equals(checkGuest)) {
         if (!isServer) {
             btnStop.setVisibility(View.INVISIBLE);
         } else {
             btnReceive.setVisibility(View.INVISIBLE);
         }
+        }
+
+        if(guest.equals(checkGuest)) {
+            btnReceive.setVisibility(View.INVISIBLE);
+        }
+
+        bodoviView.setText("0");
 
         /*boolean isHost = isHost();
         if (isHost) {
@@ -109,24 +131,28 @@ public class MojBrojActivity extends AppCompatActivity {
 
         }*/
 
+        startTimer(startTimer);
+
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 generisiBrojeve();
                 // Prepare the GUI state as a Map<String, String>
-                if (isServer) {
-                    Map<String, String> guiState = new HashMap<>();
-                    guiState.put("jednocifreni1", tvJednocifreni1.getText().toString());
-                    guiState.put("jednocifreni2", tvJednocifreni2.getText().toString());
-                    guiState.put("jednocifreni3", tvJednocifreni3.getText().toString());
-                    guiState.put("jednocifreni4", tvJednocifreni4.getText().toString());
-                    guiState.put("srednji", tvSrednji.getText().toString());
-                    guiState.put("veliki", tvVeliki.getText().toString());
-                    guiState.put("trazeniBroj", tvTrazeniBroj.getText().toString());
+                if(!guest.equals(checkGuest)) {
+                    if (isServer) {
+                        Map<String, String> guiState = new HashMap<>();
+                        guiState.put("jednocifreni1", tvJednocifreni1.getText().toString());
+                        guiState.put("jednocifreni2", tvJednocifreni2.getText().toString());
+                        guiState.put("jednocifreni3", tvJednocifreni3.getText().toString());
+                        guiState.put("jednocifreni4", tvJednocifreni4.getText().toString());
+                        guiState.put("srednji", tvSrednji.getText().toString());
+                        guiState.put("veliki", tvVeliki.getText().toString());
+                        guiState.put("trazeniBroj", tvTrazeniBroj.getText().toString());
 
-                    // Send the GUI state to the client
-                    if (connectionService != null) {
-                        //connectionService.sendMessage(guiState);
+                        // Send the GUI state to the client
+                        if (connectionService != null) {
+                            //connectionService.sendMessage(guiState);
+                        }
                     }
                 }
             }
@@ -217,7 +243,6 @@ public class MojBrojActivity extends AppCompatActivity {
     }
 
     private void proveriResenje() {
-        // Provjeri da li su svi uneseni brojevi prisutni u ponuđenim brojevima
 
         String unesenoResenje = etResenje.getText().toString();
         int trazeniBroj = Integer.parseInt(tvTrazeniBroj.getText().toString());
@@ -225,6 +250,7 @@ public class MojBrojActivity extends AppCompatActivity {
         // Provera tačnosti rešenja
         int rezultat = izracunajKompleksniIzraz(unesenoResenje);
         boolean tacno = rezultat == trazeniBroj;
+
 
         // Provera da li su brojevi u rešenju prisutni u ponuđenim brojevima
         List<Integer> ponudjeniBrojevi = new ArrayList<>();
@@ -250,11 +276,76 @@ public class MojBrojActivity extends AppCompatActivity {
         // Prikazivanje rezultata korisniku
         if (tacno && brojeviPostoje) {
             Toast.makeText(this, "Čestitamo! Rešenje je tačno!", Toast.LENGTH_SHORT).show();
+            bodovi = bodovi + 20;
+            if(guest.equals(checkGuest)) {
+                timer.cancel();
+                Intent gameIntent = new Intent(MojBrojActivity.this,KoZnaZnaActivity.class);
+                gameIntent.putExtra("user","guest");
+                gameIntent.putExtra("bodovi",bodovi);
+                startActivity(gameIntent);
+                finish();
+            }
         } else if (!tacno) {
-            Toast.makeText(this, "Rešenje nije tačno. Pokušaj ponovo.", Toast.LENGTH_SHORT).show();
+            int polovicniRezultat =rezultat-trazeniBroj ;
+            Toast.makeText(this, "Vase rešenje je za "+polovicniRezultat+" udaljeno od tacnog.", Toast.LENGTH_SHORT).show();
+            if (polovicniRezultat >= -25 && polovicniRezultat <= 25) {
+                bodovi=bodovi+10;
+                if(guest.equals(checkGuest)) {
+                    timer.cancel();
+                    Intent gameIntent = new Intent(MojBrojActivity.this,KoZnaZnaActivity.class);
+                    gameIntent.putExtra("user","guest");
+                    gameIntent.putExtra("bodovi",bodovi);
+                    startActivity(gameIntent);
+                    finish();
+                }
+            }
+            if(guest.equals(checkGuest) && !timerActive) {
+                timer.cancel();
+                Intent gameIntent = new Intent(MojBrojActivity.this,KoZnaZnaActivity.class);
+                gameIntent.putExtra("user","guest");
+                gameIntent.putExtra("bodovi",bodovi);
+                startActivity(gameIntent);
+                finish();
+            }
         } else {
             Toast.makeText(this, "Neki brojevi u rešenju ne postoje među ponuđenim brojevima.", Toast.LENGTH_SHORT).show();
+            if(guest.equals(checkGuest) && !timerActive) {
+                timer.cancel();
+                Intent gameIntent = new Intent(MojBrojActivity.this,KoZnaZnaActivity.class);
+                gameIntent.putExtra("user","guest");
+                gameIntent.putExtra("bodovi",bodovi);
+                startActivity(gameIntent);
+                finish();
+            }
         }
+    }
+
+    private void startTimer(long time) {
+        timer = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateTimerText(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                timerView.setText("00");
+                timerActive = false;
+                Toast.makeText(MojBrojActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
+                proveriResenje();
+                finish();
+            }
+        };
+
+        timer.start();
+        timerActive = true;
+    }
+
+    private void updateTimerText(long millisUntilFinished) {
+        int seconds = (int) (millisUntilFinished / 1000);
+
+        String time = String.format("%02d", seconds);
+        timerView.setText(time);
     }
 
     public void updateGUI() {

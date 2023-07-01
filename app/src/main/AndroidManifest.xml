@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,10 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Slagalica"
         tools:targetApi="31">
+        <activity
+            android:name=".RegistrationActivity"
+            android:exported="false" />
+
         <service
             android:name=".dataBase.ConnectionService"
             android:enabled="true"
             android:exported="true" />
+
         <activity
             android:name=".games.MojBrojActivity"
             android:exported="false" />
@@ -42,7 +48,7 @@
             android:name=".ProfileActivity"
             android:exported="false"
             android:label="@string/title_activity_profile"
-            android:theme="@style/Theme.Slagalica.NoActionBar"/>
+            android:theme="@style/Theme.Slagalica.NoActionBar" />
         <activity
             android:name=".HomeActivity"
             android:exported="false"

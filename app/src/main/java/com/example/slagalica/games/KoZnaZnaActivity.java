@@ -7,9 +7,11 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.slagalica.HomeActivity;
 import com.example.slagalica.R;
@@ -24,6 +26,17 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     private TextView tvOdgovor2;
     private TextView tvOdgovor3;
     private TextView tvOdgovor4;
+
+    private TextView timerView;
+    private TextView bodoviView;
+    private CountDownTimer timer;
+    private boolean timerFinished;
+    private long startTimer = 5000;
+
+    private String checkGuest = "guest";
+    private String guest;
+    private int bodovi;
+
 
     private String currentQuestion;
     private String[] currentAnswers;
@@ -44,6 +57,15 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         databaseHelper.insertQuestion("Ko je autor knjige 'Rat i mir'?", "Lev Tolstoj", "Fjodor Dostojevski", "Anton Pavlovič Čehov", "Ivan Turgenjev", 0);
         databaseHelper.insertQuestion("Ko je napisao dramu 'Hamlet'?", "William Shakespeare", "Arthur Miller", "Antonin Artaud", "Samuel Beckett", 0);
 
+        guest = getIntent().getStringExtra("user");
+        bodovi = getIntent().getIntExtra("bodovi", 0);
+
+        timerFinished = false;
+
+
+        timerView = findViewById(R.id.TVTimer);
+        bodoviView = findViewById(R.id.TVBodovi);
+        bodoviView.setText(String.valueOf(bodovi));
 
         tvPitanje = findViewById(R.id.TVPitanje);
         tvOdgovor1 = findViewById(R.id.TVOdgovor1);
@@ -55,6 +77,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         String[] questionDetails = databaseHelper.getQuestion(questionId);
 
         displayQuestion(questionDetails);
+        startTimer(startTimer);
 
     }
 
@@ -114,15 +137,28 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             // Odgovor je tačan - oboji ga zeleno
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             selectedAnswerTextView.setBackgroundColor(Color.GREEN);
-        } else {
+            bodovi = bodovi + 10;
+            bodoviView.setText(String.valueOf(bodovi));
+
+
+        } else if(selectedAnswerIndex == -1){
+            TextView correctAnswerTextView = getAnswerTextView(correctAnswerIndex);
+            correctAnswerTextView.setBackgroundColor(Color.GREEN);
+        }
+        else {
             // Odgovor je netačan - oboji tačan odgovor zeleno, a odabrani odgovor crveno
             TextView correctAnswerTextView = getAnswerTextView(correctAnswerIndex);
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
-
+            bodovi = bodovi - 5;
+            bodoviView.setText(String.valueOf(bodovi));
             correctAnswerTextView.setBackgroundColor(Color.GREEN);
             selectedAnswerTextView.setBackgroundColor(Color.RED);
         }
 
+        if (!timerFinished) {
+            timer.cancel();
+            timerFinished = true;
+        }
         // Onemogući klik na odgovore
         disableAnswerClicks();
 
@@ -131,36 +167,9 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Implementacija logike za prelazak na sledeće pitanje
-
-                // Ažuriranje trenutnog pitanja, odgovora i tačnog odgovora
-                // Možete koristiti funkciju getQuestion() iz DBHelper klase
-                String[] nextQuestion = databaseHelper.getQuestion(questionId + 1);
-                questionId += 1;
-                if (questionId > 5) {
-                    Intent intent = new Intent(KoZnaZnaActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                }
-                if (nextQuestion != null) {
-                    currentQuestion = nextQuestion[0];
-                    currentAnswers = new String[]{
-                            nextQuestion[1],
-                            nextQuestion[2],
-                            nextQuestion[3],
-                            nextQuestion[4]
-                    };
-                    correctAnswerIndex = Integer.parseInt(nextQuestion[5]);
-
-                    // Prikazivanje sledećeg pitanja
-                    displayQuestion(nextQuestion);
-                } else {
-                    // Nema više pitanja, možete implementirati odgovarajuću logiku
-                    // za završetak igre ili povratak na početnu aktivnost
-                    Intent intent = new Intent(KoZnaZnaActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                }
+                moveToNextQuestion();
             }
-        }, 3000);
+        }, 2000);
     }
 
     private void resetAnswerColors() {
@@ -189,6 +198,82 @@ public class KoZnaZnaActivity extends AppCompatActivity {
                 return tvOdgovor4;
             default:
                 return null;
+        }
+    }
+
+    private void startTimer(long time) {
+        timer = new CountDownTimer(time, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateTimerText(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                timerView.setText("00");
+                checkAnswer(-1);
+            }
+        };
+
+        timer.start();
+        timerFinished = false;
+    }
+
+
+    private void updateTimerText(long millisUntilFinished) {
+        int seconds = (int) (millisUntilFinished / 1000);
+
+        String time = String.format("%02d", seconds);
+        timerView.setText(time);
+    }
+
+    private void restartTimer() {
+        if (!timerFinished) {
+            timer.cancel();
+            timerFinished = true;
+        }
+
+        timer = new CountDownTimer(5000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                updateTimerText(millisUntilFinished);
+            }
+
+            @Override
+            public void onFinish() {
+                timerView.setText("00");
+
+                checkAnswer(-1);
+            }
+        };
+
+        timer.start();
+        timerFinished = false;
+    }
+
+    private void moveToNextQuestion() {
+        String[] nextQuestion = databaseHelper.getQuestion(questionId + 1);
+        questionId += 1;
+        if (questionId > 5) {
+            timer.cancel();
+            Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
+            intent.putExtra("user", "guest");
+            intent.putExtra("bodovi", bodovi);
+            startActivity(intent);
+            finish();
+        } else if (nextQuestion != null) {
+            currentQuestion = nextQuestion[0];
+            currentAnswers = new String[]{
+                    nextQuestion[1],
+                    nextQuestion[2],
+                    nextQuestion[3],
+                    nextQuestion[4]
+            };
+            correctAnswerIndex = Integer.parseInt(nextQuestion[5]);
+
+            // Prikazivanje sledećeg pitanja
+            displayQuestion(nextQuestion);
+            restartTimer();
         }
     }
 }

@@ -18,6 +18,32 @@
         app:layout_constraintVertical_bias="0.05"/>
 
     <TextView
+        android:id="@+id/TVTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="timer"
+        android:textColor="#FF0000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintVertical_bias="0.05"/>
+
+    <TextView
+        android:id="@+id/TVBodovi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="bodovi"
+        android:textColor="#247719"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintVertical_bias="0.05"/>
+
+    <TextView
         android:id="@+id/TVJednocifreni1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -109,6 +135,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintVertical_bias="0.75"/>
 
     <Button
@@ -120,16 +147,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintVertical_bias="0.75"/>
     <Button
         android:id="@+id/BTNStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stop"
+        android:text="Konacno"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.8"
+        app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintVertical_bias="0.75"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

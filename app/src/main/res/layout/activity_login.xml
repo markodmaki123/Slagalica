@@ -48,4 +48,26 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"/>
 
+    <Button
+        android:id="@+id/register_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:layout_below="@+id/login_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"/>
+
+    <Button
+        android:id="@+id/guest_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Play as guest"
+        android:textColor="#FFFFFF"
+        android:background="#000000"
+        android:layout_below="@+id/register_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="32dp"/>
+
 </RelativeLayout>

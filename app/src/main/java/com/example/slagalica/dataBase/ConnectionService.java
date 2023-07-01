@@ -11,6 +11,7 @@ import android.os.NetworkOnMainThreadException;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.slagalica.HomeActivity;
 import com.example.slagalica.games.MojBrojActivity;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -77,7 +78,6 @@ public class ConnectionService extends Service {
                     // Receive and send messages
                     String message;
                     while ((message = input.readLine()) != null) {
-                        Log.d("Received from client", message);
                         // Handle the received message
                         Toast.makeText(ConnectionService.this, "FROM CLIENT : "+message, Toast.LENGTH_SHORT).show();
                         // Send a response back to the client
@@ -122,7 +122,6 @@ public class ConnectionService extends Service {
                     // Receive and send messages
                     String message;
                     while ((message = input.readLine()) != null) {
-                        Log.d("Received from server", message);
                         // Handle the received message
                         Toast.makeText(ConnectionService.this, "FROM SERVER: "+message, Toast.LENGTH_SHORT).show();
                         // Send a response back to the server
@@ -155,6 +154,9 @@ public class ConnectionService extends Service {
         task.execute(); // Execute the asynchronous task
     }
 
+    public BufferedReader getInput() {
+        return input;
+    }
 
     public void sendMessage(String message) {
         AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
@@ -177,7 +179,10 @@ public class ConnectionService extends Service {
             @Override
             protected String doInBackground(Void... voids) {
                 try {
-                    return input.readLine(); // Receive the server message
+                    String massage = input.readLine();
+
+                    return massage; // Receive the server message
+
                 } catch (IOException e) {
                     e.printStackTrace();
                     // Handle the exception if there is an error while receiving the message
@@ -198,6 +203,50 @@ public class ConnectionService extends Service {
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // Execute the AsyncTask on a separate thread
     }
 
+    public void receiveMessageFromServer() {
+        if (input != null) {
+            AsyncTask<Void, Void, String> receiveMessageTask = new AsyncTask<Void, Void, String>() {
+                @Override
+                protected String doInBackground(Void... voids) {
+                    Log.i("BBB", "drugi");
+                    try {
+                        Log.i("BBB", "treci");
+
+                        String message = input.readLine();
+                        Log.i("BBB", message);
+                        return message;
+                    } catch (IOException e) {
+                        Log.i("BBB", "cet");
+                        e.printStackTrace();
+                    } catch (Exception e) {
+                        Log.i("BBB", "Exception occurred: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                    Log.i("BBB", "pet");
+
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(String message) {
+                    if (message != null) {
+                        Log.i("BBB", "sestR");
+                        Toast.makeText(ConnectionService.this, "Received message: " + message, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.i("BBB", "sestN");
+
+                        Toast.makeText(ConnectionService.this, "Error occurred while receiving message", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+
+            receiveMessageTask.execute();
+        } else {
+            // Handle the situation where input is null
+            Log.i("BBB", "Input is null");
+        }
+    }
+
     public void receiveMessageMojBrojGUI(String message) {
         Gson gson = new Gson();
         Map<String, String> receivedMap = gson.fromJson(message, new TypeToken<Map<String, String>>() {
@@ -211,14 +260,66 @@ public class ConnectionService extends Service {
         }
     }
 
+    public void sendMessageToClient(String... messages) {
+        AsyncTask<String, Void, Void> sendMessageTask = new AsyncTask<String, Void, Void>() {
+            @Override
+            protected Void doInBackground(String... messages) {
+                Log.i("AAA", messages[0]);
+                Socket clientSocket = null;
+                PrintWriter output = null;
+
+                try {
+                    Log.i("AAA", "treci");
+                    clientSocket = new Socket("192.168.0.12", 1234); // Replace with the actual server IP and port
+                    output = new PrintWriter(clientSocket.getOutputStream());
+
+                    for (String message : messages) {
+                        Log.i("AAA", "ADASDADA");
+                        Log.i("AAA", message);
+                        output.println(message);
+                        output.flush();
+                    }
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    Log.i("AAA", "cet");
+                    if (output != null) {
+                        Log.i("AAA", "pet");
+                        output.close();
+                    }
+                    if (clientSocket != null) {
+                        try {
+                            Log.i("AAA", "sest");
+                            clientSocket.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                Log.i("AAA", "sendMessageToClient completed");
+
+            }
+        };
+
+        sendMessageTask.execute(messages);
+    }
     public Map<String, String> getMessageMap() {
         return messageMap;
     }
-
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         // Close your sockets and input/output streams here
     }
+
+
 }
+

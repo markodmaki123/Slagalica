@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
@@ -14,8 +15,10 @@
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/activity_main.xml" value="0.18802083333333333" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/activity_moj_broj.xml" value="0.33" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/activity_profile.xml" value="0.18489583333333334" />
+        <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/activity_registration.xml" value="0.34791666666666665" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/activity_skocko.xml" value="0.25" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/activity_spojnice.xml" value="0.18489583333333334" />
+        <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/layout/fragment_start.xml" value="0.3619791666666667" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.193" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.193" />
         <entry key="..\:/Users/Administrator/Slagalica/app/src/main/res/mipmap-anydpi-v26/skocko_round.xml" value="0.193" />
