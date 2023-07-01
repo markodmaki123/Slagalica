@@ -131,11 +131,13 @@ public class MojBrojActivity extends AppCompatActivity {
 
         }*/
 
-        startTimer(startTimer);
+
 
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                btnStop.setVisibility(View.INVISIBLE);
+                startTimer(startTimer);
                 generisiBrojeve();
                 // Prepare the GUI state as a Map<String, String>
                 if(!guest.equals(checkGuest)) {

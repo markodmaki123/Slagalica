@@ -77,6 +77,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return loginSuccessful;
     }
 
+    public boolean checkUsernameExists(String username) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] projection = {"username"};
+        String selection = "username = ?";
+        String[] selectionArgs = {username};
+        Cursor cursor = db.query("users", projection, selection, selectionArgs, null, null, null);
+        boolean usernameExists = (cursor.getCount() > 0);
+        cursor.close();
+        return usernameExists;
+    }
+
     public void insertQuestion(String question, String answer1, String answer2, String answer3, String answer4, int correctAnswer) {
         SQLiteDatabase db = getWritableDatabase();
 

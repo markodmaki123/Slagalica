@@ -132,9 +132,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     }
 
     private void checkAnswer(int selectedAnswerIndex) {
-        // Proveri da li je odabrani odgovor tačan
         if (selectedAnswerIndex == correctAnswerIndex) {
-            // Odgovor je tačan - oboji ga zeleno
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             selectedAnswerTextView.setBackgroundColor(Color.GREEN);
             bodovi = bodovi + 10;
@@ -146,7 +144,6 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             correctAnswerTextView.setBackgroundColor(Color.GREEN);
         }
         else {
-            // Odgovor je netačan - oboji tačan odgovor zeleno, a odabrani odgovor crveno
             TextView correctAnswerTextView = getAnswerTextView(correctAnswerIndex);
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             bodovi = bodovi - 5;
@@ -159,10 +156,9 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             timer.cancel();
             timerFinished = true;
         }
-        // Onemogući klik na odgovore
+
         disableAnswerClicks();
 
-        // Pričekaj 3 sekunde i pređi na sledeće pitanje
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

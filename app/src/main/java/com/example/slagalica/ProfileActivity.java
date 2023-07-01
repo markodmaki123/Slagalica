@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -47,26 +49,23 @@ public class ProfileActivity extends AppCompatActivity {
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navigationView);
 
-        // Dohvatanje informacija profila iz baze podataka
-        String trenutniUser = "Marko"; // Unesite korisničko ime trenutno prijavljenog korisnika
 
-        Cursor cursor = dbHelper.getProfileCursor(trenutniUser);
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        String currentUser = sharedPreferences.getString("currentUser", "");
+
+        Cursor cursor = dbHelper.getProfileCursor(currentUser);
 
         if (cursor.moveToFirst()) {
-            // Dohvatanje indeksa kolona iz Cursor objekta
             int emailColumnIndex = cursor.getColumnIndexOrThrow("email");
             int usernameColumnIndex = cursor.getColumnIndexOrThrow("username");
 
-            // Dohvatanje vrednosti iz Cursor objekta
             String email = cursor.getString(emailColumnIndex);
             String username = cursor.getString(usernameColumnIndex);
 
-            // Postavljanje vrednosti u TextView elemente iz XML-a
             textViewEmail.setText("Email: " + email);
             textViewUsername.setText("Username: " + username);
         }
 
-        // Zatvaranje Cursor objekta
         cursor.close();
 
 

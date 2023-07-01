@@ -3,7 +3,9 @@ package com.example.slagalica;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -25,7 +27,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         dbHelper = new DBHelper(this);
-
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         String emailTest = "marko@gmail.com";
         String usernameTest = "123";
         String passwordTest = "123";
@@ -43,6 +46,8 @@ public class LoginActivity extends AppCompatActivity {
 
                 boolean loginSuccessful = dbHelper.loginUser(username, password);
                 if (loginSuccessful) {
+                    editor.putString("currentUser", username);
+                    editor.apply();
                     Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(homeIntent);
                     finish();

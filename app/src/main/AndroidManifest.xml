@@ -18,6 +18,9 @@
         android:theme="@style/Theme.Slagalica"
         tools:targetApi="31">
         <activity
+            android:name=".games.ResultActivity"
+            android:exported="false" />
+        <activity
             android:name=".RegistrationActivity"
             android:exported="false" />
 
