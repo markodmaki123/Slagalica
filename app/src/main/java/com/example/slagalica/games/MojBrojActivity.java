@@ -306,10 +306,10 @@ public class MojBrojActivity extends AppCompatActivity {
                 databaseReference.child("brojevi").child("resenjePoslano").setValue(true);
                 bodovi = bodovi + 20;
                 timer.cancel();
-                if (host.equals("klijent") || klijent.equals("host")) {
+                if (host.equals("klijent")) {
                     Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
-                    gameIntent.putExtra("host", host);
-                    gameIntent.putExtra("klijent", klijent);
+                    gameIntent.putExtra("host", "");
+                    gameIntent.putExtra("klijent", host);
                     gameIntent.putExtra("bodovi", bodovi);
                     startActivity(gameIntent);
                     finish();
@@ -324,10 +324,10 @@ public class MojBrojActivity extends AppCompatActivity {
             } else if ((klijent.equals("klijent") && resenjeServera) || (klijent.equals("host") && resenjeServera)) {
                 Toast.makeText(this, "Čestitamo! Rešenje je tačno ali igrac cija je igra je isto pogodio!", Toast.LENGTH_SHORT).show();
                 timer.cancel();
-                if (host.equals("klijent") || klijent.equals("host")) {
+                if (klijent.equals("host")) {
                     Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
-                    gameIntent.putExtra("host", host);
-                    gameIntent.putExtra("klijent", klijent);
+                    gameIntent.putExtra("host", klijent);
+                    gameIntent.putExtra("klijent", "");
                     gameIntent.putExtra("bodovi", bodovi);
                     startActivity(gameIntent);
                     finish();
@@ -363,7 +363,7 @@ public class MojBrojActivity extends AppCompatActivity {
                                 timer.cancel();
                                 handler.removeCallbacks(this);
                                 Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
-                                gameIntent.putExtra("host", host);
+                                gameIntent.putExtra("host", "");
                                 gameIntent.putExtra("klijent", klijent);
                                 gameIntent.putExtra("bodovi", bodovi);
                                 startActivity(gameIntent);
