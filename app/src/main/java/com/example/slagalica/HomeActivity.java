@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -35,6 +36,11 @@ import com.example.slagalica.games.MojBrojActivity;
 import com.example.slagalica.games.SkockoActivity;
 import com.example.slagalica.games.SpojniceActivity;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +51,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class HomeActivity extends AppCompatActivity {
+
+    DatabaseReference databaseReference;
+    String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
+    String clientValue;
+    String serverValue;
+
 
     private DrawerLayout drawerLayout;
     private ConnectionService connectionService;
@@ -71,6 +83,10 @@ public class HomeActivity extends AppCompatActivity {
     private static final int DELAY_CHECK_HOST = 2000;
     private Handler handler = new Handler();
 
+    private String host ="";
+    private String klijent="" ;
+
+
     private NetworkManager networkManager;
 
 
@@ -95,7 +111,12 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        networkManager = new NetworkManager();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
+        databaseReference = database.getReference();
+
+        clientValue = "";
+        serverValue = "";
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -110,7 +131,6 @@ public class HomeActivity extends AppCompatActivity {
         btnSpojnice = findViewById(R.id.BTNSpojnice);
         btnTest = findViewById(R.id.BTNtest);
         btnTestSend = findViewById(R.id.BTNtestSend);
-
 
 
         // Postavljanje toggle dugmeta za Navigation Drawer
@@ -130,9 +150,9 @@ public class HomeActivity extends AppCompatActivity {
                 if (itemId == R.id.menu_profile) {
                     // Logika za otvaranje profila
                     openProfile();
-                }  else if (itemId == R.id.menu_home) {
+                } else if (itemId == R.id.menu_home) {
                     openHome();
-                }else if (itemId == R.id.menu_leaderboard) {
+                } else if (itemId == R.id.menu_leaderboard) {
                     // Logika za otvaranje rang liste
                     openLeaderboard();
                 } else if (itemId == R.id.menu_logout) {
@@ -148,50 +168,79 @@ public class HomeActivity extends AppCompatActivity {
         btnZapocni.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            /*    // Pozivanje metoda za uspostavljanje veze
-                // Pozivanje metode isHost() nakon 5 sekundi
-                handler.postDelayed(new Runnable() {
+                databaseReference.child("server").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void run() {
-                        boolean isHost = isHost();
-                        if (isHost) {
-                            connectionService.connectToServer(isHost); //klijent
-                            btnTestSend.setVisibility(View.INVISIBLE);
-                        } else {
-                            connectionService.startServer(isHost); //server
-                            btnTest.setVisibility(View.INVISIBLE);
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String value = dataSnapshot.getValue(String.class);
+                        if (value.equals("0")) {
+                            databaseReference.child("server").setValue("1");
+                            host ="host";
+                            btnZapocni.setEnabled(false);
+                            return;
+                        } else if (value.equals("1")) {
+                            databaseReference.child("client").setValue("1");
+                            klijent = "klijent";
+                            btnZapocni.setEnabled(false);
                         }
                     }
-                }, DELAY_CHECK_HOST);
 
-                //    Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
-               //     startActivity(intent);*/
-                if (!networkManager.isHost()) {
-                    // Pokreni kao klijent
-                    networkManager.startAsClient();
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
 
-                    // Pokreni tajmer za provjeru poslužitelja
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (!networkManager.isHost() && networkManager.getClientSocket() != null && networkManager.getClientSocket().isConnected()) {
-                                // Ako još uvijek nema veze kao klijent, postani poslužitelj (host)
-                                networkManager.startAsServer();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        databaseReference.child("client").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                clientValue = dataSnapshot.getValue(String.class);
                             }
 
-                            // Prebaci se na prvu igru samo ako je poslužitelj
-                            if (networkManager.isHost()) {
-                                startGameActivity();
-                            } else {
-                                // Klijent je povezan, ali nije postao server (poslužitelj)
-                                // Možete obavestiti korisnika da pokuša ponovo ili prikazati neku drugu poruku
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
                             }
-                        }
-                    }, 3000);
-                } else {
-                    // Već postoji aktivni poslužitelj, tako da samo prebacite na prvu igru
-                    startGameActivity();
-                }
+                        });
+                        databaseReference.child("server").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                serverValue = dataSnapshot.getValue(String.class);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                            }
+                        });
+
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                databaseReference.child("client").addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                        Toast.makeText(HomeActivity.this, "Ja sam " + klijent + host, Toast.LENGTH_SHORT).show();
+
+                                        if (!serverValue.equals("") && !clientValue.equals("") && serverValue != null && clientValue != null && serverValue.equals(clientValue)) {
+                                            Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
+                                            intent.putExtra("host",host);
+                                            intent.putExtra("klijent",klijent);
+                                            startActivity(intent);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
+
+                            }
+                        }, 5000);
+                    }
+                }, 5000);
+
+
             }
         });
 
@@ -199,7 +248,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(HomeActivity.this, KoZnaZnaActivity .class);
+                Intent intent = new Intent(HomeActivity.this, KoZnaZnaActivity.class);
                 startActivity(intent);
             }
         });
@@ -256,26 +305,30 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //connectionService.sendMessage("Zdravo ovo je poruka od milosa");
-                Log.i("AAA","prvilog");
+                Log.i("AAA", "prvilog");
                 connectionService.sendMessageToClient("This is a message from the host");
-                Log.i("AAA","prviGotov");
+                Log.i("AAA", "prviGotov");
 
             }
         });
     }
+
     private void openProfile() {
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
         finish();
     }
+
     private void openHome() {
         Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
     }
+
     private void openLeaderboard() {
 
     }
+
     private void logout() {
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         startActivity(intent);
@@ -284,9 +337,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private boolean isHost() {
 
-        boolean isServer = getIntent().getBooleanExtra("IS_SERVER",false);
+        boolean isServer = getIntent().getBooleanExtra("IS_SERVER", false);
 
-        if(!isServer) {
+        if (!isServer) {
             try {
                 final int timeout = 3000; // 5000 milisekundi (5 sekundi)
                 final int port = 1234; // Odaberite prikladni port
@@ -315,7 +368,6 @@ public class HomeActivity extends AppCompatActivity {
         }
 
     }
-
 
 
     @Override
@@ -350,9 +402,10 @@ public class HomeActivity extends AppCompatActivity {
         handler.removeCallbacksAndMessages(null);*/
         networkManager.closeConnection();
     }
+
     private void startGameActivity() {
         Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
-     //   intent.putExtra("isHost", isHost);
+        //   intent.putExtra("isHost", isHost);
         startActivity(intent);
         //finish(); // Zatvorite trenutnu aktivnost ako više nije potrebna
     }

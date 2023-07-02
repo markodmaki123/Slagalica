@@ -16,17 +16,26 @@ import android.widget.Toast;
 
 import com.example.slagalica.dataBase.DBHelper;
 import com.example.slagalica.games.MojBrojActivity;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.ByteArrayOutputStream;
 
 public class LoginActivity extends AppCompatActivity {
     private DBHelper dbHelper;
+    DatabaseReference databaseReference;
+    String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         dbHelper = new DBHelper(this);
+        FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
+        databaseReference = database.getReference();
+
         SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         String emailTest = "marko@gmail.com";
