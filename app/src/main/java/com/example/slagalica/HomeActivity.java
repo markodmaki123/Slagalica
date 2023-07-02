@@ -130,7 +130,9 @@ public class HomeActivity extends AppCompatActivity {
                 if (itemId == R.id.menu_profile) {
                     // Logika za otvaranje profila
                     openProfile();
-                } else if (itemId == R.id.menu_leaderboard) {
+                }  else if (itemId == R.id.menu_home) {
+                    openHome();
+                }else if (itemId == R.id.menu_leaderboard) {
                     // Logika za otvaranje rang liste
                     openLeaderboard();
                 } else if (itemId == R.id.menu_logout) {
@@ -261,19 +263,19 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
-
     private void openProfile() {
-        // Implementacija otvaranja profila
         Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
         startActivity(intent);
         finish();
     }
-
-    private void openLeaderboard() {
-        // Implementacija otvaranja rang liste
+    private void openHome() {
+        Intent intent = new Intent(HomeActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
+    private void openLeaderboard() {
 
+    }
     private void logout() {
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         startActivity(intent);

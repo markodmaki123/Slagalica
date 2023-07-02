@@ -2,15 +2,16 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/menu_home"
+            android:title="Home" />
+        <item
             android:id="@+id/menu_profile"
             android:title="Profil" />
         <item
             android:id="@+id/menu_leaderboard"
             android:title="Rang lista" />
     </group>
-
     <item
         android:id="@+id/menu_logout"
         android:title="Odjava" />
-
 </menu>

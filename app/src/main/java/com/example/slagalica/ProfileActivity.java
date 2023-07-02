@@ -68,9 +68,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         cursor.close();
 
-
-
-        // Postavljanje toggle dugmeta za Navigation Drawer
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, android.R.string.ok, android.R.string.ok);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -78,17 +75,15 @@ public class ProfileActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // Obrada klikova na stavke navigacije
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.menu_profile) {
-                    // Logika za otvaranje profila
                     openProfile();
+                } else if (itemId == R.id.menu_home) {
+                    openHome();
                 } else if (itemId == R.id.menu_leaderboard) {
-                    // Logika za otvaranje rang liste
                     openLeaderboard();
                 } else if (itemId == R.id.menu_logout) {
-                    // Logika za odjavu
                     logout();
                 }
 
@@ -105,9 +100,14 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+    private void openHome() {
+        Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
     private void openLeaderboard() {
-        // Implementacija otvaranja rang liste
+
     }
 
     private void logout() {
