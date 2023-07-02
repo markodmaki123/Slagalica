@@ -16,9 +16,17 @@ import android.widget.Toast;
 import com.example.slagalica.HomeActivity;
 import com.example.slagalica.R;
 import com.example.slagalica.dataBase.DBHelper;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class KoZnaZnaActivity extends AppCompatActivity {
     private DBHelper databaseHelper;
+
+    DatabaseReference databaseReference;
+    String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
 
 
     private TextView tvPitanje;
@@ -37,18 +45,33 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     private String guest;
     private int bodovi;
 
+    private String host = "";
+
+    private String klijent = "";
+
+    private Boolean isFirst;
+
+    private Boolean klijentIgra;
+
 
     private String currentQuestion;
     private String[] currentAnswers;
     private int correctAnswerIndex;
     private int questionId;
 
+    private int currentQuestionId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ko_zna_zna);
 
+        currentQuestionId = 0;
+
         databaseHelper = new DBHelper(this);
+        FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
+        databaseReference = database.getReference();
+
 
         // Ubacite pitanja u bazu podataka
         databaseHelper.insertQuestion("Koja planeta je najbliža Suncu?", "Merkur", "Venera", "Mars", "Saturn", 0);
@@ -59,8 +82,45 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
+        host = getIntent().getStringExtra("host");//klijent
+        klijent = getIntent().getStringExtra("klijent");//host
 
         timerFinished = false;
+
+        if (guest == null) {
+            guest = "";
+        }
+
+        if(!guest.equals(checkGuest)) {
+            databaseReference.child("koznazna").child("amIFirst").setValue(false);
+        }
+
+        if(!guest.equals(checkGuest)) {
+            databaseReference.child("koznazna").child("amIFirst").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    isFirst = dataSnapshot.getValue(Boolean.class);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
+
+        if(!guest.equals(checkGuest)) {
+            databaseReference.child("koznazna").child("questionId").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                     currentQuestionId = dataSnapshot.getValue(Integer.class);
+                     // ovdje bi trebalo dodat ako cemo imat vise jos pitanja
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
 
 
         timerView = findViewById(R.id.TVTimer);
@@ -112,6 +172,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         tvOdgovor2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 checkAnswer(1);
             }
         });
@@ -119,6 +180,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         tvOdgovor3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 checkAnswer(2);
             }
         });
@@ -126,6 +188,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         tvOdgovor4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 checkAnswer(3);
             }
         });
@@ -133,9 +196,17 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
     private void checkAnswer(int selectedAnswerIndex) {
         if (selectedAnswerIndex == correctAnswerIndex) {
+            if(!guest.equals(checkGuest)) {
+                databaseReference.child("koznazna").child("amIFirst").setValue(!isFirst);
+            }
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             selectedAnswerTextView.setBackgroundColor(Color.GREEN);
-            bodovi = bodovi + 10;
+            if (isFirst) {
+                bodovi = bodovi + 10;
+            }
+            else {
+                Toast.makeText(this, "Nazalost, protivnik vas je preduhitrio.", Toast.LENGTH_SHORT).show();
+            }
             bodoviView.setText(String.valueOf(bodovi));
 
 
@@ -164,6 +235,8 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             @Override
             public void run() {
                 moveToNextQuestion();
+                databaseReference.child("koznazna").child("amIFirst").setValue(false);
+
             }
         }, 2000);
     }
