@@ -62,22 +62,6 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@id/BTNSkocko"
             android:text="Spojnice" />
-
-        <Button
-            android:id="@+id/BTNtest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/BTNSpojnice"
-            android:text="test" />
-
-        <Button
-            android:id="@+id/BTNtestSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_below="@id/BTNtest"
-            android:text="posalji" />
     </RelativeLayout>
 
     <com.google.android.material.navigation.NavigationView

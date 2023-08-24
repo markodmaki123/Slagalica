@@ -6,23 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".games.SpojniceActivity">
 
-    <TextView
-        android:id="@+id/kolona11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.33"
-        app:layout_constraintVertical_bias="0.3" />
 
     <TextView
         android:id="@+id/TVTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Timer"
+        android:textSize="30dp"
         android:textColor="#FF0000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -35,7 +25,8 @@
         android:id="@+id/TVBodovi"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
+        android:text="Bodovi"
+        android:textSize="30dp"
         android:textColor="#247719"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,27 +36,42 @@
         app:layout_constraintVertical_bias="0.05" />
 
     <TextView
-        android:id="@+id/kolona12"
+        android:id="@+id/kolona11"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.33"
-        app:layout_constraintVertical_bias="0.4"/>
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintVertical_bias="0.2" />
+
+    <TextView
+        android:id="@+id/kolona12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintVertical_bias="0.35"/>
 
     <TextView
         android:id="@+id/kolona13"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.33"
+        app:layout_constraintHorizontal_bias="0.25"
         app:layout_constraintVertical_bias="0.5"/>
 
     <TextView
@@ -73,82 +79,89 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.33"
-        app:layout_constraintVertical_bias="0.6"/>
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintVertical_bias="0.65"/>
 
     <TextView
         android:id="@+id/kolona15"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.33"
-        app:layout_constraintVertical_bias="0.7"/>
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintVertical_bias="0.8"/>
 
     <TextView
         android:id="@+id/kolona21"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
-        app:layout_constraintVertical_bias="0.3" />
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintVertical_bias="0.2" />
 
     <TextView
         android:id="@+id/kolona22"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
-        app:layout_constraintVertical_bias="0.4"/>
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintVertical_bias="0.35"/>
 
     <TextView
         android:id="@+id/kolona23"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
-        app:layout_constraintVertical_bias="0.5"/>
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintVertical_bias="0.50"/>
 
     <TextView
         android:id="@+id/kolona24"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
-        app:layout_constraintVertical_bias="0.6"/>
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintVertical_bias="0.65"/>
 
     <TextView
         android:id="@+id/kolona25"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TextView"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintHorizontal_bias="0.66"
-        app:layout_constraintVertical_bias="0.7"/>
+        app:layout_constraintHorizontal_bias="0.75"
+        app:layout_constraintVertical_bias="0.8"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

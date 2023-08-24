@@ -307,7 +307,7 @@ public class MojBrojActivity extends AppCompatActivity {
                 bodovi = bodovi + 20;
                 timer.cancel();
                 if (host.equals("klijent")) {
-                    Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
+                    Intent gameIntent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
                     gameIntent.putExtra("host", "");
                     gameIntent.putExtra("klijent", host);
                     gameIntent.putExtra("bodovi", bodovi);
@@ -325,7 +325,7 @@ public class MojBrojActivity extends AppCompatActivity {
                 Toast.makeText(this, "Čestitamo! Rešenje je tačno ali igrac cija je igra je isto pogodio!", Toast.LENGTH_SHORT).show();
                 timer.cancel();
                 if (klijent.equals("host")) {
-                    Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
+                    Intent gameIntent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
                     gameIntent.putExtra("host", klijent);
                     gameIntent.putExtra("klijent", "");
                     gameIntent.putExtra("bodovi", bodovi);
@@ -362,7 +362,7 @@ public class MojBrojActivity extends AppCompatActivity {
                             } else {
                                 timer.cancel();
                                 handler.removeCallbacks(this);
-                                Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
+                                Intent gameIntent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
                                 gameIntent.putExtra("host", "");
                                 gameIntent.putExtra("klijent", klijent);
                                 gameIntent.putExtra("bodovi", bodovi);
@@ -383,7 +383,7 @@ public class MojBrojActivity extends AppCompatActivity {
                 bodovi = bodovi + 20;
                 timer.cancel();
                 if (host.equals("klijent") || klijent.equals("host")) {
-                    Intent gameIntent = new Intent(MojBrojActivity.this, KorakPoKorakActivity.class);
+                    Intent gameIntent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
                     gameIntent.putExtra("host", host);
                     gameIntent.putExtra("klijent", klijent);
                     gameIntent.putExtra("bodovi", bodovi);
@@ -466,6 +466,12 @@ public class MojBrojActivity extends AppCompatActivity {
 
         String time = String.format("%02d", seconds);
         timerView.setText(time);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //handler.removeCallbacksAndMessages(null);
     }
 
 }

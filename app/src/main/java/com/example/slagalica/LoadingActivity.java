@@ -27,6 +27,8 @@ public class LoadingActivity extends AppCompatActivity {
         databaseReference = database.getReference();
 
         //databaseReference.child("server").setValue("0");
+        databaseReference.child("server").setValue("0");
+        databaseReference.child("client").setValue("0");
 
         new Handler().postDelayed(new Runnable() {
             @Override

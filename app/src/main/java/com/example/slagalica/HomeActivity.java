@@ -72,9 +72,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private Button btnSpojnice;
 
-    private Button btnTest;
-    private Button btnTestSend;
-
 
     private ServerSocket serverSocket;
     private Socket clientSocket;
@@ -129,8 +126,6 @@ public class HomeActivity extends AppCompatActivity {
         btnAso = findViewById(R.id.BTNAso);
         btnSkocko = findViewById(R.id.BTNSkocko);
         btnSpojnice = findViewById(R.id.BTNSpojnice);
-        btnTest = findViewById(R.id.BTNtest);
-        btnTestSend = findViewById(R.id.BTNtestSend);
 
 
         // Postavljanje toggle dugmeta za Navigation Drawer
@@ -213,6 +208,7 @@ public class HomeActivity extends AppCompatActivity {
                             }
                         });
 
+
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -227,6 +223,7 @@ public class HomeActivity extends AppCompatActivity {
                                             intent.putExtra("host",host);
                                             intent.putExtra("klijent",klijent);
                                             startActivity(intent);
+                                            finish();
                                         }
                                     }
 
@@ -237,8 +234,11 @@ public class HomeActivity extends AppCompatActivity {
 
                             }
                         }, 5000);
+
+
                     }
                 }, 5000);
+
 
 
             }
@@ -250,6 +250,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(HomeActivity.this, KoZnaZnaActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -259,6 +260,7 @@ public class HomeActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(HomeActivity.this, KorakPoKorakActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -268,6 +270,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(HomeActivity.this, AsocijacijeActivity.class);
                 startActivity(intent);
+                finish();
+
             }
         });
 
@@ -277,6 +281,8 @@ public class HomeActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(HomeActivity.this, SkockoActivity.class);
                 startActivity(intent);
+                finish();
+
             }
         });
 
@@ -286,31 +292,12 @@ public class HomeActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(HomeActivity.this, SpojniceActivity.class);
                 startActivity(intent);
-            }
-        });
-
-        btnTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isBound && connectionService != null) {
-                    Log.i("BBB", "IDE GAS");
-                    connectionService.receiveMessageFromServer();
-                } else {
-                    // Handle the situation where service is not bound or connectionService is null
-                    Log.i("BBB", "Service is not bound or connectionService is null");
-                }
-            }
-        });
-        btnTestSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //connectionService.sendMessage("Zdravo ovo je poruka od milosa");
-                Log.i("AAA", "prvilog");
-                connectionService.sendMessageToClient("This is a message from the host");
-                Log.i("AAA", "prviGotov");
+                finish();
 
             }
+
         });
+
     }
 
     private void openProfile() {
@@ -373,34 +360,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-       /* try {
-            if (serverSocket != null) {
-                serverSocket.close();
-            }
-
-            if (clientSocket != null) {
-                clientSocket.close();
-            }
-
-            if (input != null) {
-                input.close();
-            }
-
-            if (output != null) {
-                output.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        if (isBound) {
-            unbindService(connection);
-            isBound = false;
-        }
-        // Uklanjanje odgođenog zadatka ako je aktivnost uništena prije isteka vremena
-        handler.removeCallbacksAndMessages(null);*/
-        networkManager.closeConnection();
+        handler.removeCallbacksAndMessages(null);
     }
 
     private void startGameActivity() {

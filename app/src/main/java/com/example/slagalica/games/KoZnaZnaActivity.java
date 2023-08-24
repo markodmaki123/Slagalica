@@ -92,7 +92,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         }
 
         if(!guest.equals(checkGuest)) {
-            databaseReference.child("koznazna").child("amIFirst").setValue(false);
+            databaseReference.child("koznazna").child("amIFirst").setValue(true);
         }
 
         if(!guest.equals(checkGuest)) {
@@ -112,7 +112,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             databaseReference.child("koznazna").child("questionId").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                     currentQuestionId = dataSnapshot.getValue(Integer.class);
+                  //   currentQuestionId = dataSnapshot.getValue(Integer.class);
                      // ovdje bi trebalo dodat ako cemo imat vise jos pitanja
                 }
 
@@ -201,12 +201,17 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             }
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             selectedAnswerTextView.setBackgroundColor(Color.GREEN);
-            if (isFirst) {
+            if(!guest.equals(checkGuest)){
+                if (isFirst ) {
+                    bodovi = bodovi + 10;
+                }
+                else {
+                    Toast.makeText(this, "Nazalost, protivnik vas je preduhitrio.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
                 bodovi = bodovi + 10;
             }
-            else {
-                Toast.makeText(this, "Nazalost, protivnik vas je preduhitrio.", Toast.LENGTH_SHORT).show();
-            }
+
             bodoviView.setText(String.valueOf(bodovi));
 
 
@@ -235,7 +240,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             @Override
             public void run() {
                 moveToNextQuestion();
-                databaseReference.child("koznazna").child("amIFirst").setValue(false);
+                databaseReference.child("koznazna").child("amIFirst").setValue(true);
 
             }
         }, 2000);
@@ -302,7 +307,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             timerFinished = true;
         }
 
-        timer = new CountDownTimer(5000, 1000) {
+        timer = new CountDownTimer(6000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 updateTimerText(millisUntilFinished);
@@ -325,11 +330,18 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         questionId += 1;
         if (questionId > 5) {
             timer.cancel();
+            if(host == null ){
             Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
             intent.putExtra("user", "guest");
             intent.putExtra("bodovi", bodovi);
             startActivity(intent);
             finish();
+            } else {
+                Intent intent = new Intent(KoZnaZnaActivity.this, ResultActivity.class);
+                intent.putExtra("bodovi", bodovi);
+                startActivity(intent);
+                finish();
+            }
         } else if (nextQuestion != null) {
             currentQuestion = nextQuestion[0];
             currentAnswers = new String[]{
