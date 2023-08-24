@@ -60,6 +60,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     private int questionId;
 
     private int currentQuestionId;
+    private long remainingTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -228,9 +229,9 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             selectedAnswerTextView.setBackgroundColor(Color.RED);
         }
 
-        if (!timerFinished) {
+       if (!timerFinished) {
             timer.cancel();
-            timerFinished = true;
+           timerFinished = true;
         }
 
         disableAnswerClicks();
@@ -243,7 +244,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
                 databaseReference.child("koznazna").child("amIFirst").setValue(true);
 
             }
-        }, 2000);
+        }, remainingTime);
     }
 
     private void resetAnswerColors() {
@@ -276,10 +277,13 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     }
 
     private void startTimer(long time) {
-        timer = new CountDownTimer(time, 1000) {
+        remainingTime = time;
+
+        timer = new CountDownTimer(time, 200) {
             @Override
             public void onTick(long millisUntilFinished) {
                 updateTimerText(millisUntilFinished);
+                remainingTime = millisUntilFinished;
             }
 
             @Override
@@ -307,10 +311,11 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             timerFinished = true;
         }
 
-        timer = new CountDownTimer(6000, 1000) {
+        timer = new CountDownTimer(6000, 200) {
             @Override
             public void onTick(long millisUntilFinished) {
                 updateTimerText(millisUntilFinished);
+                remainingTime = millisUntilFinished;
             }
 
             @Override

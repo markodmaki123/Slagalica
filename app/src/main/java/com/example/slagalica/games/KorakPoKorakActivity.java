@@ -43,7 +43,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private TextView bodoviView;
     private CountDownTimer timer;
     private boolean timerActive = false;
-    private long startTimer = 60000;
+    private long startTimer = 70000;
 
     private String checkGuest = "guest";
     private String guest;
@@ -60,6 +60,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private String host = "";
     private String klijent = "";
     private int potez = 1;
+    private String brojIgre = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,16 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                 "Za vozilo je obavezno",
                 "Postoji i CASCO varijanta",
                 "osiguranje"
+        );
+
+        databaseHelper.insertSteps("Ima veze sa Malezijom",
+                "Lik je Bate Zivojinovica u filmu Most",
+                "To je strip junaka Hobs",
+                "Kod Dragane Mirkovic je animiran",
+                "Ima svoju vrstu ajkule",
+                "Pripada u porodicu velikih macaka",
+                "Postoji bengalski i sibirski",
+                "tigar"
         );
 
         bodovi = getIntent().getIntExtra("bodovi", 0);
@@ -111,7 +122,6 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         bodoviView = findViewById(R.id.TVBodovi);
         bodoviView.setText(String.valueOf(bodovi));
 
-        databaseReference.child("brojacKorakPoKorak").setValue(1);
 
         databaseReference.child("brojacKorakPoKorak").addValueEventListener(new ValueEventListener() {
             @Override
@@ -124,14 +134,26 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             }
         });
 
+        databaseReference.child("idIgreKorakPoKorak").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                brojIgre = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
         if (guest.equals(checkGuest)) {
-            stepId = 1;
+            stepId = 2;
             stepCounter = 1;
             String[] stepDetails = databaseHelper.getStep(stepId);
             correctAnswer = stepDetails[7];
             displaySteps(stepDetails);
         } else if (host.equals("klijent")) {
-            Toast.makeText(this, "HOST", Toast.LENGTH_LONG).show();
+            databaseReference.child("brojacKorakPoKorak").setValue(1);
+            //Toast.makeText(this, "HOST", Toast.LENGTH_LONG).show();
             stepId = 1;
             stepCounter = 1;
             String[] stepDetails = databaseHelper.getStep(stepId);
@@ -139,38 +161,13 @@ public class KorakPoKorakActivity extends AppCompatActivity {
 
             databaseReference.child("idIgreKorakPoKorak").setValue(String.valueOf(stepId));
             displaySteps(stepDetails);
-            databaseReference.child("brojacKorakPoKorak").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    potez = dataSnapshot.getValue(Integer.class);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
 
         } else if (klijent.equals("host")) {
-            Toast.makeText(this, "KLIJENT", Toast.LENGTH_LONG).show();
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    databaseReference.child("idIgreKorakPoKorak").addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String idIgreKorakPoKorak = dataSnapshot.getValue(String.class);
-                            String[] stepDetails = databaseHelper.getStep(Integer.parseInt(idIgreKorakPoKorak));
-                            Toast.makeText(KorakPoKorakActivity.this, idIgreKorakPoKorak, Toast.LENGTH_SHORT).show();
-                            displaySteps(stepDetails);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                        }
-                    });
-                }
-            }, 10000);
+            //Toast.makeText(this, "KLIJENT", Toast.LENGTH_LONG).show();
+            String[] stepDetails = databaseHelper.getStep(Integer.parseInt(brojIgre));
+            correctAnswer = stepDetails[7];
+            Toast.makeText(KorakPoKorakActivity.this, brojIgre, Toast.LENGTH_SHORT).show();
+            displaySteps(stepDetails);
         }
         btnKorak.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,15 +1,19 @@
 package com.example.slagalica;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
+import android.Manifest;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -25,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     private DBHelper dbHelper;
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
+
+    private final int MY_PERMISSION_REQUEST_CODE = 1000;
 
 
     @Override
@@ -42,6 +48,22 @@ public class LoginActivity extends AppCompatActivity {
         String usernameTest = "123";
         String passwordTest = "123";
         dbHelper.insertUser(emailTest, usernameTest, passwordTest);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Dozvola nije odobrena, treba je zatražiti od korisnika
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST_CODE);
+        } else {
+            // Dozvola je već odobrena, možete nastaviti sa radom
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Dozvola nije odobrena, treba je zatražiti od korisnika
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST_CODE);
+        } else {
+            // Dozvola je već odobrena, možete nastaviti sa radom
+        }
 
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {

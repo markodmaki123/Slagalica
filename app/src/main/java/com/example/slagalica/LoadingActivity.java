@@ -30,6 +30,13 @@ public class LoadingActivity extends AppCompatActivity {
         databaseReference.child("server").setValue("0");
         databaseReference.child("client").setValue("0");
 
+
+        //zapocni igru
+        databaseReference.child("zapocniIgru").setValue("0");
+
+        //restartovanje MojBroj
+        databaseReference.child("brojevi").child("brojRestart").setValue("0");
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

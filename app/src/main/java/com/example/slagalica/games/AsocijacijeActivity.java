@@ -391,7 +391,7 @@ public class AsocijacijeActivity extends AppCompatActivity {
                 timerView.setText("00");
                 timerActive = false;
                 timer.cancel();
-                Intent intent = new Intent(AsocijacijeActivity.this, HomeActivity.class);
+                Intent intent = new Intent(AsocijacijeActivity.this, SkockoActivity.class);
                 intent.putExtra("user","guest");
                 intent.putExtra("bodovi",bodovi);
                 startActivity(intent);

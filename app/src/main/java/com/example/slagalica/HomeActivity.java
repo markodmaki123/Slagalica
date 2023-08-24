@@ -80,8 +80,8 @@ public class HomeActivity extends AppCompatActivity {
     private static final int DELAY_CHECK_HOST = 2000;
     private Handler handler = new Handler();
 
-    private String host ="";
-    private String klijent="" ;
+    private String host = "";
+    private String klijent = "";
 
 
     private NetworkManager networkManager;
@@ -114,6 +114,7 @@ public class HomeActivity extends AppCompatActivity {
 
         clientValue = "";
         serverValue = "";
+
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -169,11 +170,13 @@ public class HomeActivity extends AppCompatActivity {
                         String value = dataSnapshot.getValue(String.class);
                         if (value.equals("0")) {
                             databaseReference.child("server").setValue("1");
-                            host ="host";
+                            databaseReference.child("zapocniIgru").setValue("1");
+                            host = "host";
                             btnZapocni.setEnabled(false);
                             return;
                         } else if (value.equals("1")) {
                             databaseReference.child("client").setValue("1");
+                            databaseReference.child("zapocniIgru").setValue("2");
                             klijent = "klijent";
                             btnZapocni.setEnabled(false);
                         }
@@ -184,63 +187,24 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
 
-                new Handler().postDelayed(new Runnable() {
+                databaseReference.child("zapocniIgru").addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void run() {
-                        databaseReference.child("client").addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                clientValue = dataSnapshot.getValue(String.class);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                            }
-                        });
-                        databaseReference.child("server").addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                serverValue = dataSnapshot.getValue(String.class);
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                            }
-                        });
-
-
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                databaseReference.child("client").addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                        Toast.makeText(HomeActivity.this, "Ja sam " + klijent + host, Toast.LENGTH_SHORT).show();
-
-                                        if (!serverValue.equals("") && !clientValue.equals("") && serverValue != null && clientValue != null && serverValue.equals(clientValue)) {
-                                            Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
-                                            intent.putExtra("host",host);
-                                            intent.putExtra("klijent",klijent);
-                                            startActivity(intent);
-                                            finish();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-                                    }
-                                });
-
-                            }
-                        }, 5000);
-
-
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String value = dataSnapshot.getValue(String.class);
+                        if (value.equals("2")) {
+                            Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
+                            intent.putExtra("host", host);
+                            intent.putExtra("klijent", klijent);
+                            startActivity(intent);
+                            finish();
+                            databaseReference.child("zapocniIgru").setValue("0");
+                        }
                     }
-                }, 5000);
 
-
-
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
             }
         });
 
