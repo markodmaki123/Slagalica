@@ -342,7 +342,9 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
             } else {
-                Intent intent = new Intent(KoZnaZnaActivity.this, ResultActivity.class);
+                Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
+                intent.putExtra("host", host);
+                intent.putExtra("klijent", klijent);
                 intent.putExtra("bodovi", bodovi);
                 startActivity(intent);
                 finish();

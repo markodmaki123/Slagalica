@@ -49,21 +49,6 @@ public class LoginActivity extends AppCompatActivity {
         String passwordTest = "123";
         dbHelper.insertUser(emailTest, usernameTest, passwordTest);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Dozvola nije odobrena, treba je zatražiti od korisnika
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST_CODE);
-        } else {
-            // Dozvola je već odobrena, možete nastaviti sa radom
-        }
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            // Dozvola nije odobrena, treba je zatražiti od korisnika
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST_CODE);
-        } else {
-            // Dozvola je već odobrena, možete nastaviti sa radom
-        }
 
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
