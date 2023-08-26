@@ -43,15 +43,10 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
     private String checkGuest = "guest";
     private String guest;
+    private String WhoImI="";
     private int bodovi;
 
-    private String host = "";
-
-    private String klijent = "";
-
     private Boolean isFirst;
-
-    private Boolean klijentIgra;
 
 
     private String currentQuestion;
@@ -83,17 +78,20 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
-        host = getIntent().getStringExtra("host");//klijent
-        klijent = getIntent().getStringExtra("klijent");//host
+        WhoImI = getIntent().getStringExtra("WhoImI");
 
         timerFinished = false;
 
         if (guest == null) {
             guest = "";
         }
+        if (WhoImI == null) {
+            WhoImI = "";
+        }
 
         if(!guest.equals(checkGuest)) {
             databaseReference.child("koznazna").child("amIFirst").setValue(true);
+            Toast.makeText(this, "Vasa uloga u ovoj partiji je |"+ WhoImI + "|", Toast.LENGTH_SHORT).show();
         }
 
         if(!guest.equals(checkGuest)) {
@@ -102,7 +100,6 @@ public class KoZnaZnaActivity extends AppCompatActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     isFirst = dataSnapshot.getValue(Boolean.class);
                 }
-
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
@@ -139,6 +136,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
         displayQuestion(questionDetails);
         startTimer(startTimer);
+
 
     }
 
@@ -335,16 +333,16 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         questionId += 1;
         if (questionId > 5) {
             timer.cancel();
-            if(host == null ){
+            if(WhoImI.equals("") ){
             Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
             intent.putExtra("user", "guest");
             intent.putExtra("bodovi", bodovi);
             startActivity(intent);
             finish();
             } else {
+                databaseHelper.insertQuestion("Koliko je Kina dobila po guzi", "40 zlike", "Venera", "Mars", "Saturn", 0);
                 Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
-                intent.putExtra("host", host);
-                intent.putExtra("klijent", klijent);
+                intent.putExtra("WhoImI", WhoImI);
                 intent.putExtra("bodovi", bodovi);
                 startActivity(intent);
                 finish();

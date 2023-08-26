@@ -61,11 +61,25 @@ public class HomeActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private Button btnZapocni;
 
+    private String WhoImI = "";
 
-    private Handler handler = new Handler();
+    private ValueEventListener zapocniIgruListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            if (value.equals("2")) {
+                Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
+                intent.putExtra("WhoImI", WhoImI);
+                startActivity(intent);
+                finish();
+                databaseReference.child("zapocniIgru").setValue("0");
+            }
+        }
 
-    private String host = "";
-    private String klijent = "";
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
 
 
     @Override
@@ -85,7 +99,6 @@ public class HomeActivity extends AppCompatActivity {
         btnZapocni = findViewById(R.id.BTNzapocniIgru);
 
 
-        // Postavljanje toggle dugmeta za Navigation Drawer
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, android.R.string.ok, android.R.string.ok);
         drawerLayout.addDrawerListener(drawerToggle);
         drawerToggle.syncState();
@@ -93,19 +106,15 @@ public class HomeActivity extends AppCompatActivity {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                // Obrada klikova na stavke navigacije
                 int itemId = item.getItemId();
 
                 if (itemId == R.id.menu_profile) {
-                    // Logika za otvaranje profila
                     openProfile();
                 } else if (itemId == R.id.menu_home) {
                     openHome();
                 } else if (itemId == R.id.menu_leaderboard) {
-                    // Logika za otvaranje rang liste
                     openLeaderboard();
                 } else if (itemId == R.id.menu_logout) {
-                    // Logika za odjavu
                     logout();
                 }
 
@@ -124,13 +133,12 @@ public class HomeActivity extends AppCompatActivity {
                         if (value.equals("0")) {
                             databaseReference.child("server").setValue("1");
                             databaseReference.child("zapocniIgru").setValue("1");
-                            host = "host";
+                            WhoImI = "host";
                             btnZapocni.setEnabled(false);
-                            return;
                         } else if (value.equals("1")) {
                             databaseReference.child("client").setValue("1");
                             databaseReference.child("zapocniIgru").setValue("2");
-                            klijent = "klijent";
+                            WhoImI = "klijent";
                             btnZapocni.setEnabled(false);
                         }
                     }
@@ -140,24 +148,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
                 });
 
-                databaseReference.child("zapocniIgru").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String value = dataSnapshot.getValue(String.class);
-                        if (value.equals("2")) {
-                            Intent intent = new Intent(HomeActivity.this, MojBrojActivity.class);
-                            intent.putExtra("host", host);
-                            intent.putExtra("klijent", klijent);
-                            startActivity(intent);
-                            finish();
-                            databaseReference.child("zapocniIgru").setValue("0");
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                databaseReference.child("zapocniIgru").addValueEventListener(zapocniIgruListener);
             }
         });
 
@@ -188,6 +179,7 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        databaseReference.child("zapocniIgru").removeEventListener(zapocniIgruListener);
         super.onDestroy();
     }
 

@@ -14,12 +14,15 @@ import android.widget.Toast;
 
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
+
+import com.example.slagalica.HomeActivity;
 import com.example.slagalica.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -41,7 +44,6 @@ public class MojBrojActivity extends AppCompatActivity {
     private TextView bodoviView;
 
     private CountDownTimer timer;
-    private boolean timerFinished;
     private long timerTime = 60000;
 
     private Button btnStop;
@@ -51,14 +53,70 @@ public class MojBrojActivity extends AppCompatActivity {
     private String checkGuest = "guest";
     private String guest;
 
-    private String host = "";
-    private String klijent = "";
+    private String WhoImI = "";
     private String zapocniIgru = "";
     private Boolean resenjeServera;
     private Boolean resenjePoslano;
 
+    private List<CountDownTimer> activeTimers = new ArrayList<>();
+
     private int bodovi = 0;
     private EditText etResenje;
+
+    private ValueEventListener brojevi = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String brojRestart = dataSnapshot.child("brojRestart").getValue(String.class);
+            String trazeni = dataSnapshot.child("trazeni").getValue(String.class);
+            String broj1 = dataSnapshot.child("broj1").getValue(String.class);
+            String broj2 = dataSnapshot.child("broj2").getValue(String.class);
+            String broj3 = dataSnapshot.child("broj3").getValue(String.class);
+            String broj4 = dataSnapshot.child("broj4").getValue(String.class);
+            String srednji = dataSnapshot.child("srednji").getValue(String.class);
+            String veliki = dataSnapshot.child("veliki").getValue(String.class);
+
+            tvTrazeniBroj.setText(trazeni);
+            tvJednocifreni1.setText(broj1);
+            tvJednocifreni2.setText(broj2);
+            tvJednocifreni3.setText(broj3);
+            tvJednocifreni4.setText(broj4);
+            tvSrednji.setText(srednji);
+            tvVeliki.setText(veliki);
+            if (brojRestart.equals("1")) {
+                startTimer(timerTime);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+
+    private ValueEventListener zapocniIgruListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            zapocniIgru = value;
+            if (zapocniIgru.equals("2")) {
+                Intent intent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
+                intent.putExtra("bodovi", bodovi);
+                if (WhoImI.equals("host")) {
+                    intent.putExtra("WhoImI", "klijent");
+                } else if (WhoImI.equals("klijent")) {
+                    intent.putExtra("WhoImI", "host");
+                }
+                stopAllTimers();
+                startActivity(intent);
+                finish();
+                databaseReference.child("zapocniIgru").setValue("0");
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,18 +128,14 @@ public class MojBrojActivity extends AppCompatActivity {
 
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
-        host = getIntent().getStringExtra("host");//klijent mijenja se
-        klijent = getIntent().getStringExtra("klijent");//host mijenja se
+        WhoImI = getIntent().getStringExtra("WhoImI");
 
         //null point ex
         if (guest == null) {
             guest = "";
         }
-        if (host == null) {
-            host = "";
-        }
-        if (klijent == null) {
-            klijent = "";
+        if (WhoImI == null) {
+            WhoImI = "";
         }
 
 
@@ -101,7 +155,7 @@ public class MojBrojActivity extends AppCompatActivity {
         databaseReference.child("brojevi").child("brojRestart").setValue("0");
 
         if (!guest.equals(checkGuest)) {
-            if (klijent.equals("klijent") || klijent.equals("host")) {
+            if (WhoImI.equals("klijent")) {
                 btnStop.setVisibility(View.INVISIBLE);
             }
         }
@@ -130,24 +184,7 @@ public class MojBrojActivity extends AppCompatActivity {
         });
 
 
-        databaseReference.child("zapocniIgru").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                zapocniIgru = value;
-                if (zapocniIgru.equals("2")) {
-                    Intent intent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
-                    intent.putExtra("host", host);
-                    intent.putExtra("klijent", klijent);
-                    startActivity(intent);
-                    finish();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+        databaseReference.child("zapocniIgru").addValueEventListener(zapocniIgruListener);
 
         bodoviView.setText(String.valueOf(bodovi));
 
@@ -174,41 +211,15 @@ public class MojBrojActivity extends AppCompatActivity {
             }
         });
         if (guest == "") {
-            if (klijent.equals("klijent") || klijent.equals("host")) {
-                databaseReference.child("brojevi").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String brojRestart = dataSnapshot.child("brojRestart").getValue(String.class);
-                        String trazeni = dataSnapshot.child("trazeni").getValue(String.class);
-                        String broj1 = dataSnapshot.child("broj1").getValue(String.class);
-                        String broj2 = dataSnapshot.child("broj2").getValue(String.class);
-                        String broj3 = dataSnapshot.child("broj3").getValue(String.class);
-                        String broj4 = dataSnapshot.child("broj4").getValue(String.class);
-                        String srednji = dataSnapshot.child("srednji").getValue(String.class);
-                        String veliki = dataSnapshot.child("veliki").getValue(String.class);
-
-                        tvTrazeniBroj.setText(trazeni);
-                        tvJednocifreni1.setText(broj1);
-                        tvJednocifreni2.setText(broj2);
-                        tvJednocifreni3.setText(broj3);
-                        tvJednocifreni4.setText(broj4);
-                        tvSrednji.setText(srednji);
-                        tvVeliki.setText(veliki);
-                        if (!brojRestart.equals("0")) {
-                            startTimer(timerTime);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+            Toast.makeText(this, "Vasa uloga u ovoj partiji je |"+ WhoImI + "|", Toast.LENGTH_SHORT).show();
+            if (WhoImI.equals("klijent")) {
+                databaseReference.child("brojevi").addValueEventListener(brojevi);
             }
         }
         btnKonacnoMojBroj.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                stopAllTimers();
                 proveriResenje();
             }
         });
@@ -281,12 +292,6 @@ public class MojBrojActivity extends AppCompatActivity {
     }
 
     private void proveriResenje() {
-
-        if (!timerFinished) {
-            timer.cancel();
-            timerFinished = true;
-        }
-
         String unesenoResenje = etResenje.getText().toString();
         int trazeniBroj = Integer.parseInt(tvTrazeniBroj.getText().toString());
 
@@ -320,66 +325,73 @@ public class MojBrojActivity extends AppCompatActivity {
                 gameIntent.putExtra("bodovi", bodovi);
                 startActivity(gameIntent);
                 finish();//-----------------------------------------------------------------------------------------------------------------
-            } else if (host.equals("host") || host.equals("klijent")) {
+            } else if (WhoImI.equals("host")) {
                 Toast.makeText(this, "Čestitamo! Rešenje je tačno!", Toast.LENGTH_SHORT).show();
                 databaseReference.child("brojevi").child("resenjeServera").setValue(tacno);
                 databaseReference.child("brojevi").child("resenjePoslano").setValue(true);
                 bodovi = bodovi + 20;
-                if (host.equals("klijent")) {
-                    if (zapocniIgru.equals("0")) {
-                        databaseReference.child("zapocniIgru").setValue("1");
-                    } else if (zapocniIgru.equals("1")) {
-                        databaseReference.child("zapocniIgru").setValue("2");
-                    }
-                } else {
+                // if (WhoImI.equals("host")) {//provjeri da li je kraj druge runde
+                if (zapocniIgru.equals("0")) {
+                    databaseReference.child("zapocniIgru").setValue("1");
                     Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
-                    gameIntent.putExtra("host", klijent);
-                    gameIntent.putExtra("klijent", host);
+                    gameIntent.putExtra("WhoImI", "klijent");
                     gameIntent.putExtra("bodovi", bodovi);
-                    databaseReference.child("zapocniIgru").setValue("0");
-                    databaseReference.child("brojevi").child("brojRestart").setValue("0");
                     startActivity(gameIntent);
                     finish();
+                } else if (zapocniIgru.equals("1")) {
+                    databaseReference.child("zapocniIgru").setValue("2");
                 }
-            } else if ((klijent.equals("klijent") && resenjeServera) || (klijent.equals("host") && resenjeServera)) {
+                //}
+//                else {
+//                    Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
+//                    gameIntent.putExtra("host", klijent);
+//                    gameIntent.putExtra("klijent", host);
+//                    gameIntent.putExtra("bodovi", bodovi);
+//                    databaseReference.child("zapocniIgru").setValue("0");
+//                    databaseReference.child("brojevi").child("brojRestart").setValue("0");
+//                    startActivity(gameIntent);
+//                    finish();
+//                }
+            } else if ((WhoImI.equals("klijent") && resenjeServera)) {
                 Toast.makeText(this, "Čestitamo! Rešenje je tačno ali igrac cija je igra je isto pogodio!", Toast.LENGTH_SHORT).show();
-                if (klijent.equals("host")) {
-                    if (zapocniIgru.equals("0")) {
-                        databaseReference.child("zapocniIgru").setValue("1");
-                    } else if (zapocniIgru.equals("1")) {
-                        databaseReference.child("zapocniIgru").setValue("2");
-                    }
+                //if (klijent.equals("host")) {
+                Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
+                gameIntent.putExtra("WhoImI", "host");
+                gameIntent.putExtra("bodovi", bodovi);
+                startActivity(gameIntent);
+                finish();
 
-                } else {
-                    Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
-                    gameIntent.putExtra("host", klijent);
-                    gameIntent.putExtra("klijent", host);
-                    gameIntent.putExtra("bodovi", bodovi);
-                    databaseReference.child("zapocniIgru").setValue("0");
-                    databaseReference.child("brojevi").child("brojRestart").setValue("0");
-
-                    startActivity(gameIntent);
-                    finish();
-                }
-            } else if ((klijent.equals("klijent") && !resenjePoslano) || (klijent.equals("host") && !resenjePoslano)) {
-                bodovi = bodovi + 20;
-                if (klijent.equals("klijent")) {
-                    Toast.makeText(MojBrojActivity.this, "Čestitamo! Rešenje je tačno!", Toast.LENGTH_SHORT).show();
-                    Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
-                    gameIntent.putExtra("host", klijent);
-                    gameIntent.putExtra("klijent", host);
-                    gameIntent.putExtra("bodovi", bodovi);
-                    databaseReference.child("brojevi").child("brojRestart").setValue("0");
-                    startActivity(gameIntent);
-                    finish();
-                } else {
-                    if (zapocniIgru.equals("0")) {
-                        databaseReference.child("zapocniIgru").setValue("1");
-                    } else if (zapocniIgru.equals("1")) {
-                        databaseReference.child("zapocniIgru").setValue("2");
-                    }
-                }
+                //}
+//                else {
+//                    Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
+//                    gameIntent.putExtra("host", klijent);
+//                    gameIntent.putExtra("klijent", host);
+//                    gameIntent.putExtra("bodovi", bodovi);
+//                    databaseReference.child("zapocniIgru").setValue("0");
+//                    databaseReference.child("brojevi").child("brojRestart").setValue("0");
+//
+//                    startActivity(gameIntent);
+//                    finish();
+//                }
             }
+//            else if ((WhoImI.equals("klijent") && !resenjePoslano)) { =================jos nemamo klijent prvi pogodi
+//                bodovi = bodovi + 20;
+//                if (WhoImI.equals("klijent")) {
+//                    Toast.makeText(MojBrojActivity.this, "Čestitamo! Rešenje je tačno!", Toast.LENGTH_SHORT).show();
+//                    Intent gameIntent = new Intent(MojBrojActivity.this, MojBrojActivity.class);
+//                    gameIntent.putExtra("WhoImI", "host");
+//                    gameIntent.putExtra("bodovi", bodovi);
+//                    databaseReference.child("brojevi").child("brojRestart").setValue("0");
+//                    startActivity(gameIntent);
+//                    finish();
+//                } else {
+//                    if (zapocniIgru.equals("0")) {
+//                        databaseReference.child("zapocniIgru").setValue("1");
+//                    } else if (zapocniIgru.equals("1")) {
+//                        databaseReference.child("zapocniIgru").setValue("2");
+//                    }
+//                }
+//            }
         } else if (!tacno) {
             int polovicniRezultat = rezultat - trazeniBroj;
             Toast.makeText(this, "Vase rešenje je za " + polovicniRezultat + " udaljeno od tacnog.", Toast.LENGTH_SHORT).show();
@@ -391,18 +403,7 @@ public class MojBrojActivity extends AppCompatActivity {
                     gameIntent.putExtra("bodovi", bodovi);
                     startActivity(gameIntent);
                     finish();
-                } else if (host.equals("host") || klijent.equals("host")) {
-                    Toast.makeText(this, "Vase rešenje je za " + polovicniRezultat + " udaljeno od tacnog.", Toast.LENGTH_SHORT).show();
-                    databaseReference.child("brojevi").child("resenjeServera").setValue(tacno);
                 }
-                if (guest.equals(checkGuest)) {
-                    Intent gameIntent = new Intent(MojBrojActivity.this, KoZnaZnaActivity.class);
-                    gameIntent.putExtra("user", "guest");
-                    gameIntent.putExtra("bodovi", bodovi);
-                    startActivity(gameIntent);
-                    finish();
-                }
-
             }
         } else {
             if (guest.equals(checkGuest)) {
@@ -428,10 +429,17 @@ public class MojBrojActivity extends AppCompatActivity {
             public void onFinish() {
                 timerView.setText("00");
                 proveriResenje();
+                activeTimers.remove(this);
             }
         };
         timer.start();
-        timerFinished = false;
+        activeTimers.add(timer);
+    }
+    private void stopAllTimers() {
+        for (CountDownTimer timer : activeTimers) {
+            timer.cancel();
+        }
+        activeTimers.clear(); // Očisti listu aktivnih tajmera
     }
 
     private void updateTimerText(long millisUntilFinished) {
@@ -443,8 +451,11 @@ public class MojBrojActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        stopAllTimers();
+        databaseReference.child("zapocniIgru").removeEventListener(zapocniIgruListener);
+        databaseReference.child("brojevi").removeEventListener(brojevi);
+
         super.onDestroy();
-        //handler.removeCallbacksAndMessages(null);
     }
 
 }

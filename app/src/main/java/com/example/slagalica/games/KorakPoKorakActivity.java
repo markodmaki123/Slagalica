@@ -43,7 +43,6 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private TextView timerView;
     private TextView bodoviView;
     private CountDownTimer timer;
-    private boolean timerActive = false;
     private long startTimer = 70000;
 
     private String checkGuest = "guest";
@@ -60,8 +59,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private int stepId;
     Integer value = 0;
 
-    private String host = "";
-    private String klijent = "";
+    private String WhoImI="";
     private Integer potez = 1;
     private String brojIgre = "";
 
@@ -73,14 +71,18 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
 
+        databaseReference.child("KorakPoKorak").child("BrojKoraka").setValue(0);
+
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
-        host = getIntent().getStringExtra("host");
-        klijent = getIntent().getStringExtra("klijent");
+        WhoImI = getIntent().getStringExtra("WhoImI");
         databaseHelper = new DBHelper(this);
 
         if (guest == null) {
             guest = "";
+        }
+        if (WhoImI == null) {
+            WhoImI = "";
         }
 
         stepWrong = 0;
@@ -105,15 +107,6 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         );
 
         bodovi = getIntent().getIntExtra("bodovi", 0);
-        if (host == null) {
-            host = "";
-        }
-
-        if (klijent == null) {
-            klijent = "";
-        }
-
-
 
         tvKorak1 = findViewById(R.id.TVKorak1);
         tvKorak1.setVisibility(View.INVISIBLE);
@@ -137,25 +130,13 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         btnZapocni = findViewById(R.id.btnZapocni);
 
         btnKorak.setVisibility(View.INVISIBLE);
+
         if(!guest.equals(checkGuest)) {
-            if (host.equals("klijent")) {
+            if (WhoImI.equals("klijent")) {
                 btnZapocni.setVisibility(View.INVISIBLE);
             }
         }
 
-
-        databaseReference.child("idIgreKorakPoKorak").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                brojIgre = dataSnapshot.getValue(String.class);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        Toast.makeText(this, "Ja sam" + host + " ,a moja vrijednost klijenta je |||||z" + klijent +"z||||||", Toast.LENGTH_SHORT).show();
 
         databaseReference.child("zapocniIgru").addValueEventListener(new ValueEventListener() {
             @Override
@@ -163,24 +144,36 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                 String value = dataSnapshot.getValue(String.class);
                 zapocniIgru = value;
                 if (value.equals("2")) {
-                    if (host.equals("host")) {
-                        Intent intent = new Intent(KorakPoKorakActivity.this, KorakPoKorakActivity.class);
-                        intent.putExtra("host", "klijent");
-                        intent.putExtra("bodovi", bodovi);
-                        startActivity(intent);
-                        finish();
-                        databaseReference.child("zapocniIgru").setValue("0");
-                        databaseReference.child("KorakPoKorak").child("BrojKoraka").setValue(0);
-
-                    } else if (host.equals("klijent")) {
-                        Intent intent = new Intent(KorakPoKorakActivity.this, SpojniceActivity.class);
-                        intent.putExtra("host", "host");
-                        intent.putExtra("bodovi", bodovi);
-                        startActivity(intent);
-                        finish();
-                        databaseReference.child("zapocniIgru").setValue("0");
-                        databaseReference.child("KorakPoKorak").child("BrojKoraka").setValue(0);
+                    Intent intent = new Intent(KorakPoKorakActivity.this, SpojniceActivity.class);
+                    intent.putExtra("bodovi", bodovi);
+                    if (WhoImI.equals("host")) {
+                        intent.putExtra("WhoImI", "klijent");
+                    } else if (WhoImI.equals("klijent")) {
+                        intent.putExtra("WhoImI", "host");
                     }
+                    startActivity(intent);
+                    finish();
+                    databaseReference.child("zapocniIgru").setValue("0");
+                } else if (value.equals("1")) {
+                    Intent intent = new Intent(KorakPoKorakActivity.this, KorakPoKorakActivity.class);
+                    intent.putExtra("bodovi", bodovi);
+                    databaseReference.child("zapocniIgru").setValue("1.5");
+                    if (WhoImI.equals("host")) {
+                        intent.putExtra("WhoImI", "klijent");
+                    } else if (WhoImI.equals("klijent")) {
+                        if(potez!=8) {
+                            tvKorak2.setVisibility(View.VISIBLE);
+                            tvKorak3.setVisibility(View.VISIBLE);
+                            tvKorak4.setVisibility(View.VISIBLE);
+                            tvKorak5.setVisibility(View.VISIBLE);
+                            tvKorak6.setVisibility(View.VISIBLE);
+                            tvKorak7.setVisibility(View.VISIBLE);
+                            Toast.makeText(KorakPoKorakActivity.this, "Tačan odgovor je " + correctAnswer + ".", Toast.LENGTH_SHORT).show();
+                        }
+                        intent.putExtra("WhoImI", "host");
+                    }
+                    startActivity(intent);
+                    finish();
                 }
             }
 
@@ -195,32 +188,41 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             String[] stepDetails = databaseHelper.getStep(stepId);
             correctAnswer = stepDetails[7];
             displaySteps(stepDetails);
-        } else if (host.equals("host")) {
+        } else if (WhoImI.equals("host")) {
             databaseReference.child("brojacKorakPoKorak").setValue(1);
-            //Toast.makeText(this, "HOST", Toast.LENGTH_LONG).show();
             stepId = 1;
             stepCounter = 0;
             String[] stepDetails = databaseHelper.getStep(stepId);
             correctAnswer = stepDetails[7];
 
-            databaseReference.child("idIgreKorakPoKorak").setValue(String.valueOf(stepId));
+            databaseReference.child("idIgreKorakPoKorak").setValue(stepId);
             displaySteps(stepDetails);
 
-        } else if (host.equals("klijent")) {
-            //Toast.makeText(this, "KLIJENT", Toast.LENGTH_LONG).show();
-            String[] stepDetails = databaseHelper.getStep(Integer.parseInt(brojIgre));
-            correctAnswer = stepDetails[7];
-            Toast.makeText(KorakPoKorakActivity.this, brojIgre, Toast.LENGTH_SHORT).show();
-            displaySteps(stepDetails);
+        } else if (WhoImI.equals("klijent")) {
+            databaseReference.child("idIgreKorakPoKorak").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Integer value = dataSnapshot.getValue(Integer.class);
+                    String[] stepDetails = databaseHelper.getStep(value);
+                    correctAnswer = stepDetails[7];
+                    displaySteps(stepDetails);
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
         }
+
         btnKorak.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (guest.equals(checkGuest)) {
                     checkAnswer(etOdgovor.getText().toString());
-                } else if (host.equals("klijent")) {
+                } else if (WhoImI.equals("klijent")) {
                     checkAnswer(etOdgovor.getText().toString());
-                } else if (host.equals("host")) {
+                } else if (WhoImI.equals("host")) {
                     checkAnswer(etOdgovor.getText().toString());
                     databaseReference.child("KorakPoKorak").child("BrojKoraka").setValue(potez);
                 }
@@ -229,17 +231,19 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         });
 
         if(!guest.equals(checkGuest)) {
+            Toast.makeText(this, "Vasa uloga u ovoj partiji je |"+ WhoImI + "|", Toast.LENGTH_SHORT).show();
             databaseReference.child("KorakPoKorak").child("BrojKoraka").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     value = dataSnapshot.getValue(Integer.class);
                     int valueInt = value.intValue();
-                    if (valueInt == 7 && host.equals("host")) {
+                    if (valueInt == 8 && WhoImI.equals("host")) {
                         btnKorak.setVisibility(View.INVISIBLE);
-                    } else if (valueInt != 7 && host.equals("klijent")) {
+                    } else if (valueInt != 8 && WhoImI.equals("klijent")) {
                         btnKorak.setVisibility(View.INVISIBLE);
                         switch (valueInt) {
                             case 1:
+                                startTimer(startTimer);
                                 tvKorak1.setVisibility(View.VISIBLE);
                                 break;
                             case 2:
@@ -263,7 +267,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                             default:
                                 break;
                         }
-                    } else if (valueInt == 7 && host.equals("klijent")) {
+                    } else if (valueInt == 8 && WhoImI.equals("klijent")) {
                         btnKorak.setVisibility(View.VISIBLE);
                     }
                 }
@@ -283,7 +287,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                     btnZapocni.setVisibility(View.INVISIBLE);
                     stepCounter++;
                     tvKorak1.setVisibility(View.VISIBLE);
-                } else if (host.equals("host")) {
+                } else if (WhoImI.equals("host")) {
                     btnKorak.setVisibility(View.VISIBLE);
                     btnZapocni.setVisibility(View.INVISIBLE);
                     startTimer(startTimer);
@@ -343,7 +347,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                 }
             }, 2000);
 //-------------------------------------------------------------------------------------------------------------- guest
-        } else if ((answer1.equals(correctAnswer) && host.equals("host"))) {
+        } else if ((answer1.equals(correctAnswer) && WhoImI.equals("host"))) {
             tvKorak2.setVisibility(View.VISIBLE);
             tvKorak3.setVisibility(View.VISIBLE);
             tvKorak4.setVisibility(View.VISIBLE);
@@ -359,11 +363,20 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    databaseReference.child("zapocniIgru").setValue("2");
+                    if (zapocniIgru.equals("0")) {
+                        databaseReference.child("zapocniIgru").setValue("1");
+//                        Intent gameIntent = new Intent(KorakPoKorakActivity.this, KorakPoKorakActivity.class);
+//                        gameIntent.putExtra("WhoImI", "klijent");
+//                        gameIntent.putExtra("bodovi", bodovi);
+//                        startActivity(gameIntent);
+//                        finish();
+                    } else if (zapocniIgru.equals("1.5")) {
+                        databaseReference.child("zapocniIgru").setValue("2");
+                    }
                 }
             }, 2000);
 //-------------------------------------------------------------------------------------------------------------- host
-        } else if (answer1.equals(correctAnswer) && host.equals("klijent")) {
+        } else if (answer1.equals(correctAnswer) && WhoImI.equals("klijent")) {
             tvKorak2.setVisibility(View.VISIBLE);
             tvKorak3.setVisibility(View.VISIBLE);
             tvKorak4.setVisibility(View.VISIBLE);
@@ -379,12 +392,21 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    databaseReference.child("zapocniIgru").setValue("2");
+                    if (zapocniIgru.equals("0")) {
+                        databaseReference.child("zapocniIgru").setValue("1");
+//                        Intent gameIntent = new Intent(KorakPoKorakActivity.this, KorakPoKorakActivity.class);
+//                        gameIntent.putExtra("WhoImI", "host");
+//                        gameIntent.putExtra("bodovi", bodovi);
+//                        startActivity(gameIntent);
+//                        finish();
+                    } else if (zapocniIgru.equals("1.5")) {
+                        databaseReference.child("zapocniIgru").setValue("2");
+                    }
                 }
             }, 2000);
             //-------------------------------------------------------------------------------------------------------------- klijent
 
-        } else if (host.equals("host")) {
+        } else if (WhoImI.equals("host")) {
             stepCounter = stepCounter + 1;
             stepWrong++;
             switch (stepCounter) {
@@ -413,16 +435,14 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                     potez++;
                     break;
                 default:
+                    potez++;
                     Toast.makeText(this, "Niste pogodili. Odgovor je " + correctAnswer + ".", Toast.LENGTH_SHORT).show();
                     timer.cancel();
                     bodoviView.setText(String.valueOf(bodovi));
-                    if (zapocniIgru.equals("0")) {
-                        databaseReference.child("zapocniIgru").setValue("1");
-                    }
                     break;
             }
 
-        } else if (host.equals("klijent")) {
+        } else if (WhoImI.equals("klijent")) {
             Toast.makeText(this, "Niste pogodili. Odgovor je " + correctAnswer + ".", Toast.LENGTH_SHORT).show();
             timer.cancel();
             bodoviView.setText(String.valueOf(bodovi));
@@ -430,7 +450,16 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    databaseReference.child("zapocniIgru").setValue("2");
+                    if (zapocniIgru.equals("0")) {
+                        databaseReference.child("zapocniIgru").setValue("1");
+//                        Intent gameIntent = new Intent(KorakPoKorakActivity.this, KorakPoKorakActivity.class);
+//                        gameIntent.putExtra("WhoImI", "host");
+//                        gameIntent.putExtra("bodovi", bodovi);
+//                        startActivity(gameIntent);
+//                        finish();
+                    } else if (zapocniIgru.equals("1.5")) {
+                        databaseReference.child("zapocniIgru").setValue("2");
+                    }
                 }
             }, 2000);
 
@@ -489,19 +518,17 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 timerView.setText("00");
-                timerActive = false;
-                Toast.makeText(KorakPoKorakActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(KorakPoKorakActivity.this, "Vrijeme je isteklo u korak po korak!", Toast.LENGTH_SHORT).show();
                 timer.cancel();
-                Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
-                intent.putExtra("user", "guest");
-                intent.putExtra("bodovi", bodovi);
-                startActivity(intent);
-                finish();
+//                Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
+//                intent.putExtra("user", "guest");
+//                intent.putExtra("bodovi", bodovi);
+//                startActivity(intent);
+//                finish();
             }
         };
 
         timer.start();
-        timerActive = true;
     }
 
     private void updateTimerText(long millisUntilFinished) {
