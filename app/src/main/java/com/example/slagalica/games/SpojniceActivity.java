@@ -277,6 +277,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     assert value != null;
                     if(!value.equals("")) {
                         random.add(value);
+                        tvSpojica21.setText(random.get(0));
                     }
 
                 }
@@ -292,6 +293,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     assert value != null;
                     if(!value.equals("")) {
                         random.add(value);
+                        tvSpojica22.setText(random.get(1));
                     }
 
                 }
@@ -307,6 +309,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     assert value != null;
                     if(!value.equals("")) {
                         random.add(value);
+                        tvSpojica23.setText(random.get(2));
                     }
 
                 }
@@ -322,6 +325,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     assert value != null;
                     if(!value.equals("")) {
                         random.add(value);
+                        tvSpojica24.setText(random.get(3));
                     }
 
                 }
@@ -337,6 +341,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     assert value != null;
                     if(!value.equals("")) {
                         random.add(value);
+                        tvSpojica25.setText(random.get(4));
                     }
 
                 }
@@ -346,19 +351,14 @@ public class SpojniceActivity extends AppCompatActivity {
             });
 
             tvSpojica11.setText(kolona11[0]);
-            tvSpojica21.setText(random.get(0));
             tvSpojica21.setEnabled(false);
             tvSpojica12.setText(kolona22[0]);
-            tvSpojica22.setText(random.get(1));
             tvSpojica22.setEnabled(false);
             tvSpojica13.setText(kolona33[0]);
-            tvSpojica23.setText(random.get(2));
             tvSpojica23.setEnabled(false);
             tvSpojica14.setText(kolona44[0]);
-            tvSpojica24.setText(random.get(3));
             tvSpojica24.setEnabled(false);
             tvSpojica15.setText(kolona55[0]);
-            tvSpojica25.setText(random.get(4));
             tvSpojica25.setEnabled(false);
         }
 
@@ -456,7 +456,7 @@ public class SpojniceActivity extends AppCompatActivity {
                             tvSpojica23.setEnabled(false);
                             tvSpojica24.setEnabled(false);
                             tvSpojica25.setEnabled(false);
-                            if(correctCounter==4){
+                            if(correctCounter==5){
                                 if (zapocniIgru.equals("0")) {
                                     databaseReference.child("zapocniIgru").setValue("1");
                                 } else if (zapocniIgru.equals("1.5")) {

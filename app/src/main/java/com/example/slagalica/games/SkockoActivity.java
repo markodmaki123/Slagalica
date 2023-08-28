@@ -17,6 +17,7 @@ import com.example.slagalica.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -49,8 +50,7 @@ public class SkockoActivity extends AppCompatActivity {
     private int bodovi;
 
     private String WhoImI = "";
-    private Integer potez = 1;
-    Integer value = 0;
+    private Integer potez = 0;
     String zapocniIgru = "";
 
 
@@ -77,6 +77,9 @@ public class SkockoActivity extends AppCompatActivity {
 
         bodoviView.setText(String.valueOf(bodovi));
 
+        FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
+        databaseReference = database.getReference();
+
         if (guest == null) {
             guest = "";
         }
@@ -89,10 +92,12 @@ public class SkockoActivity extends AppCompatActivity {
             String symbol = symbols[randomIndex];
             combination.add(symbol);
         }
-        databaseReference.child("Skocko").child("combination").child("simobol1").setValue(combination.get(0));
-        databaseReference.child("Skocko").child("combination").child("simobol2").setValue(combination.get(1));
-        databaseReference.child("Skocko").child("combination").child("simobol3").setValue(combination.get(2));
-        databaseReference.child("Skocko").child("combination").child("simobol4").setValue(combination.get(3));
+        databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
+
+        databaseReference.child("Skocko").child("combination").child("simbol1").setValue(combination.get(0));
+        databaseReference.child("Skocko").child("combination").child("simbol2").setValue(combination.get(1));
+        databaseReference.child("Skocko").child("combination").child("simbol3").setValue(combination.get(2));
+        databaseReference.child("Skocko").child("combination").child("simbol4").setValue(combination.get(3));
 
         imgSkocko.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -177,8 +182,8 @@ public class SkockoActivity extends AppCompatActivity {
             databaseReference.child("Skocko").child("BrojPokusaja").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    value = dataSnapshot.getValue(Integer.class);
-                    int valueInt = value.intValue();
+                    potez = dataSnapshot.getValue(Integer.class);
+                    int valueInt = potez.intValue();
                     if (valueInt == 6 && WhoImI.equals("host")) {
                         imgSkocko.setEnabled(false);
                         imgTref.setEnabled(false);
@@ -187,37 +192,14 @@ public class SkockoActivity extends AppCompatActivity {
                         imgKaro.setEnabled(false);
                         imgZvijezda.setEnabled(false);
                     } else if (valueInt != 6 && WhoImI.equals("klijent")) {
-                        imgSkocko.setEnabled(false);
-                        imgTref.setEnabled(false);
-                        imgPik.setEnabled(false);
-                        imgSrce.setEnabled(false);
-                        imgKaro.setEnabled(false);
-                        imgZvijezda.setEnabled(false);
-                        switch (valueInt) {
-                            case 1:
-                                //startTimer(startTimer);
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            case 2:
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            case 3:
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            case 4:
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            case 5:
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            case 6:
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            case 7:
-                                databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
-                                break;
-                            default:
-                                break;
+                        if(potez!=0) {
+                            imgSkocko.setEnabled(false);
+                            imgTref.setEnabled(false);
+                            imgPik.setEnabled(false);
+                            imgSrce.setEnabled(false);
+                            imgKaro.setEnabled(false);
+                            imgZvijezda.setEnabled(false);
+                            databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
                         }
                     } else if (valueInt == 6 && WhoImI.equals("klijent")) {
                         imgSkocko.setEnabled(true);
@@ -235,6 +217,7 @@ public class SkockoActivity extends AppCompatActivity {
             });
         }
 
+
     }
 
     public void onSymbolClicked(View view) {
@@ -247,10 +230,10 @@ public class SkockoActivity extends AppCompatActivity {
         }
         if (userCombination.size() == 4) {
             /////UBACUJEM U BAZU POKUSAJ HOSTA
-            databaseReference.child("Skocko").child("userCombination").child("simobol2").setValue(userCombination.get(0));
-            databaseReference.child("Skocko").child("userCombination").child("simobol2").setValue(userCombination.get(1));
-            databaseReference.child("Skocko").child("userCombination").child("simobol3").setValue(userCombination.get(2));
-            databaseReference.child("Skocko").child("userCombination").child("simobol4").setValue(userCombination.get(3));
+            databaseReference.child("Skocko").child("userCombination").child("simbol1").setValue(userCombination.get(0));
+            databaseReference.child("Skocko").child("userCombination").child("simbol2").setValue(userCombination.get(1));
+            databaseReference.child("Skocko").child("userCombination").child("simbol3").setValue(userCombination.get(2));
+            databaseReference.child("Skocko").child("userCombination").child("simbol4").setValue(userCombination.get(3));
             if (guest.equals(checkGuest)) {
                 attemptCount++;
                 evaluateCombination();
@@ -452,21 +435,24 @@ public class SkockoActivity extends AppCompatActivity {
     private ValueEventListener updateKlijentCombinationUI = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            String simbol1 = dataSnapshot.child("Skocko").child("userCombination").child("simobol1").getValue(String.class);
-            String simbol2 = dataSnapshot.child("Skocko").child("userCombination").child("simobol2").getValue(String.class);
-            String simbol3 = dataSnapshot.child("Skocko").child("userCombination").child("simobol3").getValue(String.class);
-            String simbol4 = dataSnapshot.child("Skocko").child("userCombination").child("simobol4").getValue(String.class);
+            String simbol1 = dataSnapshot.child("simbol1").getValue(String.class);
+            String simbol2 = dataSnapshot.child("simbol2").getValue(String.class);
+            String simbol3 = dataSnapshot.child("simbol3").getValue(String.class);
+            String simbol4 = dataSnapshot.child("simbol4").getValue(String.class);
+
             ArrayList<String> hostCombination = new ArrayList<>();
             hostCombination.add(simbol1);
             hostCombination.add(simbol2);
             hostCombination.add(simbol3);
             hostCombination.add(simbol4);
-            int index = hostCombination.size() - 1;
-            int imageViewId = getResources().getIdentifier("IVpokusaj" + (potez) + (index + 1), "id", getPackageName());
-            ImageView imageView = findViewById(imageViewId);
-            String symbol = hostCombination.get(index);
-            int drawableId = getResources().getIdentifier(symbol, "drawable", getPackageName());
-            imageView.setImageResource(drawableId);
+            for(int i=0;i<4;i++){
+                int imageViewId = getResources().getIdentifier("IVpokusaj" + (potez) + (i + 1), "id", getPackageName());
+                ImageView imageView = findViewById(imageViewId);
+                String symbol = hostCombination.get(i);
+                int drawableId = getResources().getIdentifier(symbol, "drawable", getPackageName());
+                imageView.setImageResource(drawableId);
+            }
+            databaseReference.child("Skocko").child("userCombination").removeEventListener(updateKlijentCombinationUI);
         }
 
         @Override
