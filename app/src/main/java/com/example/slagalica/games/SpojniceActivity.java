@@ -55,8 +55,9 @@ public class SpojniceActivity extends AppCompatActivity {
     private int bodovi;
 
     String zapocniIgru = "";
+    private String drugaKolona = "";
 
-    private String WhoImI="";
+    private String WhoImI = "";
 
     private int connectionCounter;
     private int correctCounter;
@@ -104,13 +105,12 @@ public class SpojniceActivity extends AppCompatActivity {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
             String prvaKolona = dataSnapshot.getValue(String.class);
-            if(prvaKolona==null){
+            if (prvaKolona == null) {
                 prvaKolona = "";
             }
             switch (prvaKolona) {
                 case "tacno11": {
                     tvSpojica11.setBackgroundColor(Color.GREEN);
-                    String drugaKolona = dataSnapshot.child("BrojDrugogOdgovora").getValue(String.class);
                     if (drugaKolona != null) {
                         colorTextView(drugaKolona);
                     }
@@ -118,7 +118,6 @@ public class SpojniceActivity extends AppCompatActivity {
                 }
                 case "tacno12": {
                     tvSpojica12.setBackgroundColor(Color.GREEN);
-                    String drugaKolona = dataSnapshot.child("BrojDrugogOdgovora").getValue(String.class);
                     if (drugaKolona != null) {
                         colorTextView(drugaKolona);
                     }
@@ -126,7 +125,6 @@ public class SpojniceActivity extends AppCompatActivity {
                 }
                 case "tacno13": {
                     tvSpojica13.setBackgroundColor(Color.GREEN);
-                    String drugaKolona = dataSnapshot.child("BrojDrugogOdgovora").getValue(String.class);
                     if (drugaKolona != null) {
                         colorTextView(drugaKolona);
                     }
@@ -134,7 +132,6 @@ public class SpojniceActivity extends AppCompatActivity {
                 }
                 case "tacno14": {
                     tvSpojica14.setBackgroundColor(Color.GREEN);
-                    String drugaKolona = dataSnapshot.child("BrojDrugogOdgovora").getValue(String.class);
                     if (drugaKolona != null) {
                         colorTextView(drugaKolona);
                     }
@@ -142,7 +139,6 @@ public class SpojniceActivity extends AppCompatActivity {
                 }
                 case "tacno15": {
                     tvSpojica15.setBackgroundColor(Color.GREEN);
-                    String drugaKolona = dataSnapshot.child("BrojDrugogOdgovora").getValue(String.class);
                     if (drugaKolona != null) {
                         colorTextView(drugaKolona);
                     }
@@ -171,6 +167,7 @@ public class SpojniceActivity extends AppCompatActivity {
             }
         }
 
+
         @Override
         public void onCancelled(DatabaseError databaseError) {
         }
@@ -193,7 +190,7 @@ public class SpojniceActivity extends AppCompatActivity {
         databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue("");
 
         databaseReference.child("Spojnice").child("PrvaKolona").setValue("");
-        databaseReference.child("Spojnice").child("PrvaKolona").child("BrojDrugogOdgovora").setValue("");
+        databaseReference.child("Spojnice").child("BrojDrugogOdgovora").setValue("");
 
 
         databaseReference.child("Spojnice").child("Brojac").setValue(0);
@@ -242,17 +239,33 @@ public class SpojniceActivity extends AppCompatActivity {
 
         startTimer(startTimer);
 
+        if (WhoImI.equals("host")) {
+            displayConnections(connectionDetails);
+        }
+
         databaseReference.child("zapocniIgru").addValueEventListener(prebacivajeIgre);
 
         databaseReference.child("Spojnice").child("Brojac").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 connectionCounter = dataSnapshot.getValue(Integer.class);
-                if(correctCounter==1 && WhoImI.equals("klijent")){
+                if (connectionCounter == 1 && WhoImI.equals("klijent")) {
                     startSecondColomunListeners();
                     databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
                 }
             }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+
+        databaseReference.child("Spojnice").child("BrojDrugogOdgovora").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                drugaKolona = dataSnapshot.getValue(String.class);
+            }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -263,6 +276,7 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 correctCounter = dataSnapshot.getValue(Integer.class);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -274,29 +288,29 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.kolona21:
-                        int textViewId1 = getResources().getIdentifier("kolona" + "1" + (connectionCounter+1), "id", getPackageName());
+                        int textViewId1 = getResources().getIdentifier("kolona" + "1" + (connectionCounter + 1), "id", getPackageName());
                         TextView textView1 = findViewById(textViewId1);
-                        updateFirstColumn(connectionDetails[connectionCounter],textView1.getText().toString(),tvSpojica21.getText().toString(),v);
+                        updateFirstColumn(connectionDetails[connectionCounter], textView1.getText().toString(), tvSpojica21.getText().toString(), v);
                         break;
                     case R.id.kolona22:
-                        int textViewId2 = getResources().getIdentifier("kolona" + "1" + (connectionCounter+1), "id", getPackageName());
+                        int textViewId2 = getResources().getIdentifier("kolona" + "1" + (connectionCounter + 1), "id", getPackageName());
                         TextView textView2 = findViewById(textViewId2);
-                        updateFirstColumn(connectionDetails[connectionCounter],textView2.getText().toString(),tvSpojica22.getText().toString(),v);
+                        updateFirstColumn(connectionDetails[connectionCounter], textView2.getText().toString(), tvSpojica22.getText().toString(), v);
                         break;
                     case R.id.kolona23:
-                        int textViewId3 = getResources().getIdentifier("kolona" + "1" + (connectionCounter+1), "id", getPackageName());
+                        int textViewId3 = getResources().getIdentifier("kolona" + "1" + (connectionCounter + 1), "id", getPackageName());
                         TextView textView3 = findViewById(textViewId3);
-                        updateFirstColumn(connectionDetails[connectionCounter],textView3.getText().toString(),tvSpojica23.getText().toString(),v);
+                        updateFirstColumn(connectionDetails[connectionCounter], textView3.getText().toString(), tvSpojica23.getText().toString(), v);
                         break;
                     case R.id.kolona24:
-                        int textViewId4 = getResources().getIdentifier("kolona" + "1" + (connectionCounter+1), "id", getPackageName());
+                        int textViewId4 = getResources().getIdentifier("kolona" + "1" + (connectionCounter + 1), "id", getPackageName());
                         TextView textView4 = findViewById(textViewId4);
-                        updateFirstColumn(connectionDetails[connectionCounter],textView4.getText().toString(),tvSpojica24.getText().toString(),v);
+                        updateFirstColumn(connectionDetails[connectionCounter], textView4.getText().toString(), tvSpojica24.getText().toString(), v);
                         break;
                     case R.id.kolona25:
-                        int textViewId5 = getResources().getIdentifier("kolona" + "1" + (connectionCounter+1), "id", getPackageName());
+                        int textViewId5 = getResources().getIdentifier("kolona" + "1" + (connectionCounter + 1), "id", getPackageName());
                         TextView textView5 = findViewById(textViewId5);
-                        updateFirstColumn(connectionDetails[connectionCounter],textView5.getText().toString(),tvSpojica25.getText().toString(),v);
+                        updateFirstColumn(connectionDetails[connectionCounter], textView5.getText().toString(), tvSpojica25.getText().toString(), v);
                         break;
                 }
             }
@@ -307,9 +321,6 @@ public class SpojniceActivity extends AppCompatActivity {
         tvSpojica23.setOnClickListener(answerClickListener);
         tvSpojica24.setOnClickListener(answerClickListener);
         tvSpojica25.setOnClickListener(answerClickListener);
-        if(WhoImI.equals("host")){
-            displayConnections(connectionDetails);
-        }
     }
 
     private void displayConnections(String[] connectionDetails) {
@@ -328,7 +339,7 @@ public class SpojniceActivity extends AppCompatActivity {
 
         List<String> random = new ArrayList<String>();
 
-        if(WhoImI.equals("host")) {
+        if (WhoImI.equals("host")) {
             random.add(kolona11[1]);
             random.add(kolona22[1]);
             random.add(kolona33[1]);
@@ -355,30 +366,35 @@ public class SpojniceActivity extends AppCompatActivity {
         }
     }
 
-    private void updateFirstColumn(String correctConnections, String firstConnection, String secondConnecion, View v){
+    private void updateFirstColumn(String correctConnections, String firstConnection, String secondConnecion, View v) {
         String[] correct = correctConnections.split(";");
+        String [] expectedResult1 = connections[0].split(";");
+        String [] expectedResult2 = connections[1].split(";");
+        String [] expectedResult3 = connections[2].split(";");
+        String [] expectedResult4 = connections[3].split(";");
+        String [] expectedResult5 = connections[4].split(";");
 
-        if(correct[0].equals(firstConnection) && correct[1].equals(secondConnecion)){
-            int textViewId = getResources().getIdentifier("kolona" + 1 + (connectionCounter+1), "id", getPackageName());
+        if (correct[0].equals(firstConnection) && correct[1].equals(secondConnecion)) {
+            int textViewId = getResources().getIdentifier("kolona" + 1 + (connectionCounter + 1), "id", getPackageName());
             TextView textView = findViewById(textViewId);
             textView.setBackgroundColor(Color.GREEN);
             v.setBackgroundColor(Color.GREEN);
             v.setEnabled(false);
-            if(!guest.equals(checkGuest)) {
+            if (!guest.equals(checkGuest)) {
                 String text = textView.getText().toString();
-                if (text.equals(connections[0])) {
+                if (text.equals(expectedResult1[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("tacno11");
                     colorAnswerForClient(v);
-                } else if (text.equals(connections[1])) {
+                } else if (text.equals(expectedResult2[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("tacno12");
                     colorAnswerForClient(v);
-                } else if (text.equals(connections[2])) {
+                } else if (text.equals(expectedResult3[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("tacno13");
                     colorAnswerForClient(v);
-                } else if (text.equals(connections[3])) {
+                } else if (text.equals(expectedResult4[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("tacno14");
                     colorAnswerForClient(v);
-                } else if (text.equals(connections[4])) {
+                } else if (text.equals(expectedResult5[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("tacno15");
                     colorAnswerForClient(v);
                 }
@@ -388,47 +404,47 @@ public class SpojniceActivity extends AppCompatActivity {
             correctCounter++;
             databaseReference.child("Spojnice").child("BrojacTacnih").setValue(correctCounter);
         } else {
-            int textViewId = getResources().getIdentifier("kolona" + 1 + (connectionCounter+1), "id", getPackageName());
+            int textViewId = getResources().getIdentifier("kolona" + 1 + (connectionCounter + 1), "id", getPackageName());
             TextView textView = findViewById(textViewId);
             textView.setBackgroundColor(Color.RED);
-            if(!guest.equals(checkGuest)) {
+            if (!guest.equals(checkGuest)) {
                 String text = textView.getText().toString();
-                if (text.equals(connections[0])) {
+                if (text.equals(expectedResult1[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno11");
-                } else if (text.equals(connections[1])) {
+                } else if (text.equals(expectedResult2[1])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno12");
-                } else if (text.equals(connections[2])) {
+                } else if (text.equals(expectedResult3[2])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno13");
-                } else if (text.equals(connections[3])) {
+                } else if (text.equals(expectedResult4[3])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno14");
-                } else if (text.equals(connections[4])) {
+                } else if (text.equals(expectedResult5[4])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno15");
                 }
             }
         }
 
-        if(connectionCounter==4){
+        if (connectionCounter == 4) {
             bodoviView.setText(String.valueOf(bodovi));
             timer.cancel();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if(!guest.equals(checkGuest)){
-                        if(WhoImI.equals("host")){
+                    if (!guest.equals(checkGuest)) {
+                        if (WhoImI.equals("host")) {
                             tvSpojica21.setEnabled(false);
                             tvSpojica22.setEnabled(false);
                             tvSpojica23.setEnabled(false);
                             tvSpojica24.setEnabled(false);
                             tvSpojica25.setEnabled(false);
-                            if(correctCounter==5){
+                            if (correctCounter == 5) {
                                 if (zapocniIgru.equals("0")) {
                                     databaseReference.child("zapocniIgru").setValue("1");
                                 } else if (zapocniIgru.equals("1.5")) {
                                     databaseReference.child("zapocniIgru").setValue("2");
                                 }
                             }
-                        } else if(WhoImI.equals("klijent")){
+                        } else if (WhoImI.equals("klijent")) {
                             //uradi klijenta
                         }
                     } else {
@@ -446,7 +462,7 @@ public class SpojniceActivity extends AppCompatActivity {
         }
     }
 
-    private void colorAnswerForClient(View v){
+    private void colorAnswerForClient(View v) {
         switch (v.getId()) {
             case R.id.kolona21:
                 databaseReference.child("Spojnice").child("BrojDrugogOdgovora").setValue("tacno21");
@@ -466,7 +482,7 @@ public class SpojniceActivity extends AppCompatActivity {
         }
     }
 
-    private void colorTextView(String column){
+    private void colorTextView(String column) {
         switch (column) {
             case "tacno21":
                 tvSpojica21.setBackgroundColor(Color.GREEN);
@@ -486,7 +502,7 @@ public class SpojniceActivity extends AppCompatActivity {
         }
     }
 
-    private void startSecondColomunListeners(){
+    private void startSecondColomunListeners() {
         List<String> random = new ArrayList<String>();
         String connection1 = connections[0];
         String connection2 = connections[1];
@@ -504,12 +520,13 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 assert value != null;
-                if(!value.equals("")) {
+                if (!value.equals("")) {
                     random.add(value);
                     tvSpojica21.setText(random.get(0));
                 }
 
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -520,12 +537,13 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 assert value != null;
-                if(!value.equals("")) {
+                if (!value.equals("")) {
                     random.add(value);
                     tvSpojica22.setText(random.get(1));
                 }
 
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -536,12 +554,13 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 assert value != null;
-                if(!value.equals("")) {
+                if (!value.equals("")) {
                     random.add(value);
                     tvSpojica23.setText(random.get(2));
                 }
 
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -552,12 +571,13 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 assert value != null;
-                if(!value.equals("")) {
+                if (!value.equals("")) {
                     random.add(value);
                     tvSpojica24.setText(random.get(3));
                 }
 
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -568,12 +588,13 @@ public class SpojniceActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 assert value != null;
-                if(!value.equals("")) {
+                if (!value.equals("")) {
                     random.add(value);
                     tvSpojica25.setText(random.get(4));
                 }
 
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -604,8 +625,8 @@ public class SpojniceActivity extends AppCompatActivity {
                 timer.cancel();
                 Toast.makeText(SpojniceActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(SpojniceActivity.this, AsocijacijeActivity.class);
-                intent.putExtra("user","guest");
-                intent.putExtra("bodovi",bodovi);
+                intent.putExtra("user", "guest");
+                intent.putExtra("bodovi", bodovi);
                 startActivity(intent);
                 finish();
             }
