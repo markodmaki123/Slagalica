@@ -10,8 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.example.slagalica.R;
+import com.example.slagalica.model.GuestResult;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "myapp.db";
@@ -45,11 +48,14 @@ public class DBHelper extends SQLiteOpenHelper {
                 "column31 TEXT, column32 TEXT, column33 TEXT, column34 TEXT, columnAnswer3 TEXT," +
                 "column41 TEXT, column42 TEXT, column43 TEXT, column44 TEXT, columnAnswer4 TEXT, correct_answer TEXT)";
         String createTableConnect2 = "CREATE TABLE connect2 (id INTEGER PRIMARY KEY AUTOINCREMENT, connection1 TEXT, connection2 TEXT, connection3 TEXT, connection4 TEXT, connection5 TEXT)";
+        String createTableResultGuest = "CREATE TABLE resultsGuest (id INTEGER PRIMARY KEY AUTOINCREMENT, nickname TEXT, bodovi INTEGER)";
+
         db.execSQL(createTableAssociations);
         db.execSQL(createTableQuery);
         db.execSQL(createTableSteps);
         db.execSQL(createTableConnect2);
         db.execSQL(createTableQuestions);
+        db.execSQL(createTableResultGuest);
 
     }
     public void insertUser(String email,String username, String password) {
@@ -304,6 +310,39 @@ public class DBHelper extends SQLiteOpenHelper {
                 null
         );
     }
+    public void insertResultGuest(String nickname,int bodovi) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("nickname", nickname);
+        values.put("bodovi", bodovi);
+        db.insert("resultsGuest", null, values);
+    }
 
+    @SuppressLint("Range")
+    public List<GuestResult> getAllResultsGuest() {
+        List<GuestResult> resultsList = new ArrayList<>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.query("resultsGuest", null, null, null, null, null, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                do {
+                    String nickname = cursor.getString(cursor.getColumnIndex("nickname"));
+                    int bodovi = cursor.getInt(cursor.getColumnIndex("bodovi"));
+
+                    // Stvaranje objekta ResultGuest i dodavanje u listu
+                    GuestResult guestResult = new GuestResult(nickname, bodovi);
+                    resultsList.add(guestResult);
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+        }
+
+        db.close();
+        return resultsList;
+    }
 
 }

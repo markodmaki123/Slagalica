@@ -18,16 +18,14 @@
         android:theme="@style/Theme.Slagalica"
         tools:targetApi="31">
         <activity
+            android:name=".ResultForGuest"
+            android:exported="false" />
+        <activity
             android:name=".games.ResultActivity"
             android:exported="false" />
         <activity
             android:name=".RegistrationActivity"
             android:exported="false" />
-
-        <service
-            android:name=".dataBase.ConnectionService"
-            android:enabled="true"
-            android:exported="true" />
 
         <activity
             android:name=".games.MojBrojActivity"

@@ -5,50 +5,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.NetworkOnMainThreadException;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
-
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 
-import com.example.slagalica.dataBase.ConnectionService;
-import com.example.slagalica.dataBase.NetworkManager;
-import com.example.slagalica.games.AsocijacijeActivity;
-import com.example.slagalica.games.KoZnaZnaActivity;
-import com.example.slagalica.games.KorakPoKorakActivity;
 import com.example.slagalica.games.MojBrojActivity;
-import com.example.slagalica.games.SkockoActivity;
-import com.example.slagalica.games.SpojniceActivity;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class HomeActivity extends AppCompatActivity {
 

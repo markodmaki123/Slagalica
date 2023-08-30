@@ -29,6 +29,7 @@ public class SpojniceActivity extends AppCompatActivity {
 
     private DBHelper databaseHelper;
 
+    private List<CountDownTimer> activeTimers = new ArrayList<>();
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
 
@@ -239,27 +240,32 @@ public class SpojniceActivity extends AppCompatActivity {
 
         startTimer(startTimer);
 
+        if (guest.equals(checkGuest)) {
+            displayConnectionsGuest(connectionDetails);
+        }
+
         if (WhoImI.equals("host")) {
             displayConnections(connectionDetails);
         }
 
         databaseReference.child("zapocniIgru").addValueEventListener(prebacivajeIgre);
 
-        databaseReference.child("Spojnice").child("Brojac").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                connectionCounter = dataSnapshot.getValue(Integer.class);
-                if (connectionCounter == 1 && WhoImI.equals("klijent")) {
-                    startSecondColomunListeners();
-                    databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
+        if (!guest.equals(checkGuest)) {
+            databaseReference.child("Spojnice").child("Brojac").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    connectionCounter = dataSnapshot.getValue(Integer.class);
+                    if (connectionCounter == 1 && WhoImI.equals("klijent")) {
+                        startSecondColomunListeners();
+                        databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
+                    }
                 }
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
         databaseReference.child("Spojnice").child("BrojDrugogOdgovora").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -364,6 +370,41 @@ public class SpojniceActivity extends AppCompatActivity {
             tvSpojica15.setText(kolona55[0]);
             tvSpojica25.setText(random.get(4));
         }
+    }
+
+    private void displayConnectionsGuest(String[] connectionDetails) {
+
+        String connection1 = connectionDetails[0];
+        String connection2 = connectionDetails[1];
+        String connection3 = connectionDetails[2];
+        String connection4 = connectionDetails[3];
+        String connection5 = connectionDetails[4];
+
+        String[] kolona11 = connection1.split(";");
+        String[] kolona22 = connection2.split(";");
+        String[] kolona33 = connection3.split(";");
+        String[] kolona44 = connection4.split(";");
+        String[] kolona55 = connection5.split(";");
+
+        List<String> random = new ArrayList<String>();
+
+            random.add(kolona11[1]);
+            random.add(kolona22[1]);
+            random.add(kolona33[1]);
+            random.add(kolona44[1]);
+            random.add(kolona55[1]);
+            Collections.shuffle(random);
+
+            tvSpojica11.setText(kolona11[0]);
+            tvSpojica21.setText(random.get(0));
+            tvSpojica12.setText(kolona22[0]);
+            tvSpojica22.setText(random.get(1));
+            tvSpojica13.setText(kolona33[0]);
+            tvSpojica23.setText(random.get(2));
+            tvSpojica14.setText(kolona44[0]);
+            tvSpojica24.setText(random.get(3));
+            tvSpojica15.setText(kolona55[0]);
+            tvSpojica25.setText(random.get(4));
     }
 
     private void updateFirstColumn(String correctConnections, String firstConnection, String secondConnecion, View v) {
@@ -622,7 +663,7 @@ public class SpojniceActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 timerView.setText("00");
-                timer.cancel();
+                activeTimers.remove(this);
                 Toast.makeText(SpojniceActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(SpojniceActivity.this, AsocijacijeActivity.class);
                 intent.putExtra("user", "guest");
@@ -632,7 +673,9 @@ public class SpojniceActivity extends AppCompatActivity {
             }
         };
 
+
         timer.start();
+        activeTimers.add(timer);
     }
 
     private void updateTimerText(long millisUntilFinished) {
@@ -642,9 +685,16 @@ public class SpojniceActivity extends AppCompatActivity {
         timerView.setText(time);
     }
 
+    private void stopAllTimers() {
+        for (CountDownTimer timer : activeTimers) {
+            timer.cancel();
+        }
+        activeTimers.clear(); // Očisti listu aktivnih tajmera
+    }
+
     @Override
     protected void onDestroy() {
-        timer.cancel();
+        stopAllTimers();
         databaseReference.child("PrvaKolona").removeEventListener(updateClientValues);
         databaseReference.child("zapocniIgru").removeEventListener(prebacivajeIgre);
         super.onDestroy();

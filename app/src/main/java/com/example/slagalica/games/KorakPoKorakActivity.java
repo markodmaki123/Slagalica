@@ -23,8 +23,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class KorakPoKorakActivity extends AppCompatActivity {
     private DBHelper databaseHelper;
+    private List<CountDownTimer> activeTimers = new ArrayList<>();
 
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
@@ -476,17 +480,12 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             @Override
             public void onFinish() {
                 timerView.setText("00");
-                Toast.makeText(KorakPoKorakActivity.this, "Vrijeme je isteklo u korak po korak!", Toast.LENGTH_SHORT).show();
-                timer.cancel();
-//                Intent intent = new Intent(KorakPoKorakActivity.this, HomeActivity.class);
-//                intent.putExtra("user", "guest");
-//                intent.putExtra("bodovi", bodovi);
-//                startActivity(intent);
-//                finish();
+                activeTimers.remove(this);
             }
         };
 
         timer.start();
+        activeTimers.add(timer);
     }
 
     private void updateTimerText(long millisUntilFinished) {
@@ -498,7 +497,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        timer.cancel();
+        stopAllTimers();
         databaseReference.child("zapocniIgru").removeEventListener(prebacivajeIgre);
         super.onDestroy();
     }
@@ -542,9 +541,17 @@ public class KorakPoKorakActivity extends AppCompatActivity {
             }
         }
 
+
+
         @Override
         public void onCancelled(DatabaseError databaseError) {
         }
     };
+    private void stopAllTimers() {
+        for (CountDownTimer timer : activeTimers) {
+            timer.cancel();
+        }
+        activeTimers.clear(); // Očisti listu aktivnih tajmera
+    }
 
 }

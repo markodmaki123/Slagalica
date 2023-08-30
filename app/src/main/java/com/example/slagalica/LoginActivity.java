@@ -93,5 +93,15 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        Button guestResutlButton = findViewById(R.id.guest_result_button);
+        guestResutlButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent gameIntent = new Intent(LoginActivity.this, ResultForGuest.class);
+                startActivity(gameIntent);
+                finish();
+            }
+        });
     }
 }

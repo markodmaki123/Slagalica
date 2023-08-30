@@ -32,6 +32,7 @@ public class SkockoActivity extends AppCompatActivity {
     private List<String> userCombination = new ArrayList<>();
     private int attemptCount = 0;
     private List<String> combination = new ArrayList<>();
+    private List<CountDownTimer> activeTimers = new ArrayList<>();
 
     private ImageView imgSkocko;
     private ImageView imgTref;
@@ -192,7 +193,7 @@ public class SkockoActivity extends AppCompatActivity {
                         imgKaro.setEnabled(false);
                         imgZvijezda.setEnabled(false);
                     } else if (valueInt != 6 && WhoImI.equals("klijent")) {
-                        if(potez!=0) {
+                        if (potez != 0) {
                             imgSkocko.setEnabled(false);
                             imgTref.setEnabled(false);
                             imgPik.setEnabled(false);
@@ -350,7 +351,7 @@ public class SkockoActivity extends AppCompatActivity {
                         finish();
                     }
                 }, 3000);
-            } else if (WhoImI.equals("host")){
+            } else if (WhoImI.equals("host")) {
                 timer.cancel();
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -363,7 +364,7 @@ public class SkockoActivity extends AppCompatActivity {
                         }
                     }
                 }, 2000);
-            } else if (WhoImI.equals("klijent")){
+            } else if (WhoImI.equals("klijent")) {
                 timer.cancel();
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -379,7 +380,6 @@ public class SkockoActivity extends AppCompatActivity {
             }
         } else if (attemptCount == 6) {
             tacnoResenje(combination.get(0), combination.get(1), combination.get(2), combination.get(3));
-            timer.cancel();
             imgSkocko.setEnabled(false);
             imgTref.setEnabled(false);
             imgPik.setEnabled(false);
@@ -391,9 +391,9 @@ public class SkockoActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Intent intent = new Intent(SkockoActivity.this, ResultActivity.class);
-                    startActivity(intent);
                     intent.putExtra("user", "guest");
                     intent.putExtra("bodovi", bodovi);
+                    startActivity(intent);
                     finish();
                 }
             }, 3000);
@@ -420,7 +420,7 @@ public class SkockoActivity extends AppCompatActivity {
             public void onFinish() {
                 timerView.setText("00");
                 Toast.makeText(SkockoActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
-                timer.cancel();
+                activeTimers.remove(this);
                 Intent intent = new Intent(SkockoActivity.this, AsocijacijeActivity.class);
                 intent.putExtra("user", "guest");
                 intent.putExtra("bodovi", bodovi);
@@ -430,6 +430,7 @@ public class SkockoActivity extends AppCompatActivity {
         };
 
         timer.start();
+        activeTimers.add(timer);
     }
 
     private ValueEventListener updateKlijentCombinationUI = new ValueEventListener() {
@@ -445,7 +446,7 @@ public class SkockoActivity extends AppCompatActivity {
             hostCombination.add(simbol2);
             hostCombination.add(simbol3);
             hostCombination.add(simbol4);
-            for(int i=0;i<4;i++){
+            for (int i = 0; i < 4; i++) {
                 int imageViewId = getResources().getIdentifier("IVpokusaj" + (potez) + (i + 1), "id", getPackageName());
                 ImageView imageView = findViewById(imageViewId);
                 String symbol = hostCombination.get(i);
@@ -466,5 +467,18 @@ public class SkockoActivity extends AppCompatActivity {
 
         String time = String.format("%02d", seconds);
         timerView.setText(time);
+    }
+
+    private void stopAllTimers() {
+        for (CountDownTimer timer : activeTimers) {
+            timer.cancel();
+        }
+        activeTimers.clear(); // Očisti listu aktivnih tajmera
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopAllTimers();
+        super.onDestroy();
     }
 }
