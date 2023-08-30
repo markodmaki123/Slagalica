@@ -8,8 +8,11 @@
             android:id="@+id/menu_profile"
             android:title="Profil" />
         <item
-            android:id="@+id/menu_leaderboard"
-            android:title="Rang lista" />
+            android:id="@+id/menu_leaderboard_wins"
+            android:title="Rang lista pobijeda" />
+        <item
+            android:id="@+id/menu_leaderboard_points"
+            android:title="Rang lista najvise poena" />
     </group>
     <item
         android:id="@+id/menu_logout"

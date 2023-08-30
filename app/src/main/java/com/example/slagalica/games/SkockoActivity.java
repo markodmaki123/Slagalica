@@ -41,6 +41,12 @@ public class SkockoActivity extends AppCompatActivity {
     private ImageView imgKaro;
     private ImageView imgZvijezda;
 
+    private ImageView konacno1;
+    private ImageView konacno2;
+    private ImageView konacno3;
+    private ImageView konacno4;
+
+
     private TextView timerView;
     private TextView bodoviView;
     private CountDownTimer timer;
@@ -69,6 +75,11 @@ public class SkockoActivity extends AppCompatActivity {
         imgKaro = findViewById(R.id.karo);
         imgZvijezda = findViewById(R.id.zvijezda);
 
+        konacno1 = findViewById(R.id.IVkonacno1);
+        konacno2 = findViewById(R.id.IVkonacno2);
+        konacno3 = findViewById(R.id.IVkonacno3);
+        konacno4 = findViewById(R.id.IVkonacno4);
+
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
         WhoImI = getIntent().getStringExtra("WhoImI");
@@ -93,8 +104,23 @@ public class SkockoActivity extends AppCompatActivity {
             String symbol = symbols[randomIndex];
             combination.add(symbol);
         }
-        databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
 
+        int drawableId1 = getResources().getIdentifier(combination.get(0), "drawable", getPackageName());
+        konacno1.setImageResource(drawableId1);
+        int drawableId2 = getResources().getIdentifier(combination.get(1), "drawable", getPackageName());
+        konacno2.setImageResource(drawableId2);
+        int drawableId3 = getResources().getIdentifier(combination.get(2), "drawable", getPackageName());
+        konacno3.setImageResource(drawableId3);
+        int drawableId4 = getResources().getIdentifier(combination.get(3), "drawable", getPackageName());
+        konacno4.setImageResource(drawableId4);
+
+        konacno1.setVisibility(View.INVISIBLE);
+        konacno2.setVisibility(View.INVISIBLE);
+        konacno3.setVisibility(View.INVISIBLE);
+        konacno4.setVisibility(View.INVISIBLE);
+
+
+        databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
         databaseReference.child("Skocko").child("combination").child("simbol1").setValue(combination.get(0));
         databaseReference.child("Skocko").child("combination").child("simbol2").setValue(combination.get(1));
         databaseReference.child("Skocko").child("combination").child("simbol3").setValue(combination.get(2));
@@ -179,7 +205,6 @@ public class SkockoActivity extends AppCompatActivity {
         });
 
         if (!guest.equals(checkGuest)) {
-            Toast.makeText(this, "Vasa uloga u ovoj partiji je |" + WhoImI + "|", Toast.LENGTH_SHORT).show();
             databaseReference.child("Skocko").child("BrojPokusaja").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -192,7 +217,7 @@ public class SkockoActivity extends AppCompatActivity {
                         imgSrce.setEnabled(false);
                         imgKaro.setEnabled(false);
                         imgZvijezda.setEnabled(false);
-                    } else if (valueInt != 6 && WhoImI.equals("klijent")) {
+                    } else if (valueInt != 7 && WhoImI.equals("klijent")) {
                         if (potez != 0) {
                             imgSkocko.setEnabled(false);
                             imgTref.setEnabled(false);
@@ -200,9 +225,11 @@ public class SkockoActivity extends AppCompatActivity {
                             imgSrce.setEnabled(false);
                             imgKaro.setEnabled(false);
                             imgZvijezda.setEnabled(false);
+                            databaseReference.child("Skocko").addValueEventListener(updateKlijentHints);
                             databaseReference.child("Skocko").child("userCombination").addValueEventListener(updateKlijentCombinationUI);
                         }
-                    } else if (valueInt == 6 && WhoImI.equals("klijent")) {
+                    }
+                     if (valueInt == 6 && WhoImI.equals("klijent")) {
                         imgSkocko.setEnabled(true);
                         imgTref.setEnabled(true);
                         imgPik.setEnabled(true);
@@ -227,7 +254,11 @@ public class SkockoActivity extends AppCompatActivity {
 
         if (symbol != null) {
             userCombination.add(symbol);
-            updateUserCombinationUI();
+            if (WhoImI.equals("host") || guest.equals(checkGuest)) {
+                updateUserCombinationUI();
+            } else if (WhoImI.equals("klijent")) {
+                updateUserCombinationUIKlijent();
+            }
         }
         if (userCombination.size() == 4) {
             /////UBACUJEM U BAZU POKUSAJ HOSTA
@@ -285,6 +316,16 @@ public class SkockoActivity extends AppCompatActivity {
         imageView.setImageResource(drawableId);
     }
 
+    private void updateUserCombinationUIKlijent() {
+        int index = userCombination.size() - 1;
+        int imageViewId = getResources().getIdentifier("IVpokusaj7" + (index + 1), "id", getPackageName());
+        ImageView imageView = findViewById(imageViewId);
+
+        String symbol = userCombination.get(index);
+        int drawableId = getResources().getIdentifier(symbol, "drawable", getPackageName());
+        imageView.setImageResource(drawableId);
+    }
+
     private void evaluateCombination() {
         int correctSymbols = 0;
         int misplacedSymbols = 0;
@@ -315,12 +356,20 @@ public class SkockoActivity extends AppCompatActivity {
             }
         }
 
-        int textViewId = getResources().getIdentifier("TVhint" + attemptCount, "id", getPackageName());
+        if ((WhoImI.equals("host")) || (guest.equals(checkGuest))) {
+            int textViewId = getResources().getIdentifier("TVhint" + attemptCount, "id", getPackageName());
+            TextView textView = findViewById(textViewId);
+            String resultText = "T: " + correctSymbols + ", NNSM: " + misplacedSymbols;
+            textView.setText(resultText);
+            databaseReference.child("Skocko").child("hints").setValue(resultText);
+        }else if(WhoImI.equals("klijent")){
+            int textViewId = getResources().getIdentifier("TVhint7" , "id", getPackageName());
+            TextView textView = findViewById(textViewId);
+            String resultText = "T: " + correctSymbols + ", NNSM: " + misplacedSymbols;
+            textView.setText(resultText);
+        }
 
-        TextView textView = findViewById(textViewId);
 
-        String resultText = "T: " + correctSymbols + ", NNSM: " + misplacedSymbols;
-        textView.setText(resultText);
         // Proverite da li je korisnik pogodio kombinaciju ili dostigao maksimalan broj pokušaja
         if (correctSymbols == 4) {
             if (attemptCount == 1 || attemptCount == 2) {
@@ -331,7 +380,7 @@ public class SkockoActivity extends AppCompatActivity {
                 bodovi = bodovi + 10;
             }
             bodoviView.setText(String.valueOf(bodovi));
-            timer.cancel();
+            stopAllTimers();
             Toast.makeText(this, "Bravo pogodiliste tacnu kobinaciju!", Toast.LENGTH_SHORT).show();
             imgSkocko.setEnabled(false);
             imgTref.setEnabled(false);
@@ -339,6 +388,10 @@ public class SkockoActivity extends AppCompatActivity {
             imgSrce.setEnabled(false);
             imgKaro.setEnabled(false);
             imgZvijezda.setEnabled(false);
+            konacno1.setVisibility(View.VISIBLE);
+            konacno2.setVisibility(View.VISIBLE);
+            konacno3.setVisibility(View.VISIBLE);
+            konacno4.setVisibility(View.VISIBLE);
             if (guest.equals(checkGuest)) {
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
@@ -352,33 +405,35 @@ public class SkockoActivity extends AppCompatActivity {
                     }
                 }, 3000);
             } else if (WhoImI.equals("host")) {
-                timer.cancel();
+                stopAllTimers();
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (zapocniIgru.equals("0")) {
                             databaseReference.child("zapocniIgru").setValue("1");
+                            databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
                         } else if (zapocniIgru.equals("1.5")) {
                             databaseReference.child("zapocniIgru").setValue("2");
                         }
                     }
                 }, 2000);
             } else if (WhoImI.equals("klijent")) {
-                timer.cancel();
+                stopAllTimers();
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         if (zapocniIgru.equals("0")) {
                             databaseReference.child("zapocniIgru").setValue("1");
+                            databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
                         } else if (zapocniIgru.equals("1.5")) {
                             databaseReference.child("zapocniIgru").setValue("2");
                         }
                     }
                 }, 2000);
             }
-        } else if (attemptCount == 6) {
+        } else if ((attemptCount == 6) && (guest.equals(checkGuest))) {
             tacnoResenje(combination.get(0), combination.get(1), combination.get(2), combination.get(3));
             imgSkocko.setEnabled(false);
             imgTref.setEnabled(false);
@@ -397,11 +452,35 @@ public class SkockoActivity extends AppCompatActivity {
                     finish();
                 }
             }, 3000);
+        } else if ((potez == 7) && WhoImI.equals("klijent")) {
+            tacnoResenje(combination.get(0), combination.get(1), combination.get(2), combination.get(3));
+            imgSkocko.setEnabled(false);
+            imgTref.setEnabled(false);
+            imgPik.setEnabled(false);
+            imgSrce.setEnabled(false);
+            imgKaro.setEnabled(false);
+            imgZvijezda.setEnabled(false);
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (zapocniIgru.equals("0")) {
+                        databaseReference.child("zapocniIgru").setValue("1");
+                        databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
+                    } else if (zapocniIgru.equals("1.5")) {
+                        databaseReference.child("zapocniIgru").setValue("2");
+                    }
+                }
+            }, 2000);
         }
     }
 
     private void tacnoResenje(String prva, String druga, String treca, String cetvrta) {
         Toast.makeText(this, "Tacna kombinacija je: " + prva + " " + druga + " " + treca + " " + cetvrta, Toast.LENGTH_SHORT).show();
+        konacno1.setVisibility(View.VISIBLE);
+        konacno2.setVisibility(View.VISIBLE);
+        konacno3.setVisibility(View.VISIBLE);
+        konacno4.setVisibility(View.VISIBLE);
     }
 
     private void clearUserCombination() {
@@ -454,6 +533,21 @@ public class SkockoActivity extends AppCompatActivity {
                 imageView.setImageResource(drawableId);
             }
             databaseReference.child("Skocko").child("userCombination").removeEventListener(updateKlijentCombinationUI);
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+    private ValueEventListener updateKlijentHints = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String hint = dataSnapshot.child("hints").getValue(String.class);
+            int textViewId = getResources().getIdentifier("TVhint" + (potez), "id", getPackageName());
+            TextView textView = findViewById(textViewId);
+            textView.setText(hint);
+            databaseReference.child("Skocko").removeEventListener(updateKlijentHints);
         }
 
         @Override

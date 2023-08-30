@@ -62,10 +62,85 @@ public class SpojniceActivity extends AppCompatActivity {
 
     private int connectionCounter;
     private int correctCounter;
+    private int listenerStartCounter = 0;
 
     private int connectionId;
 
     private String[] connections;
+
+    private ValueEventListener DrugaKolonaPrvoPolje = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            assert value != null;
+            if (!value.equals("")) {
+                tvSpojica21.setText(value);
+            }}
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+    private ValueEventListener DrugaKolonaDrugoPolje = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            assert value != null;
+            if (!value.equals("")) {
+                tvSpojica22.setText(value);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+    private ValueEventListener DrugaKolonaTrecePolje = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            assert value != null;
+            if (!value.equals("")) {
+                tvSpojica23.setText(value);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+    private ValueEventListener DrugaKolonaCetvrtoPolje = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            assert value != null;
+            if (!value.equals("")) {
+                tvSpojica24.setText(value);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+    private ValueEventListener DrugaKolonaPetoPolje = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            String value = dataSnapshot.getValue(String.class);
+            assert value != null;
+            if (!value.equals("")) {
+                tvSpojica25.setText(value);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
 
     private ValueEventListener prebacivajeIgre = new ValueEventListener() {
         @Override
@@ -166,6 +241,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     break;
                 }
             }
+            //databaseReference.child("Spojnice").child("PrvaKolona").removeEventListener(updateClientValues);
         }
 
 
@@ -183,12 +259,6 @@ public class SpojniceActivity extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
-
-        databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").setValue("");
-        databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").setValue("");
-        databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").setValue("");
-        databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").setValue("");
-        databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue("");
 
         databaseReference.child("Spojnice").child("PrvaKolona").setValue("");
         databaseReference.child("Spojnice").child("BrojDrugogOdgovora").setValue("");
@@ -238,14 +308,35 @@ public class SpojniceActivity extends AppCompatActivity {
         String[] connectionDetails = databaseHelper.getConnections(connectionId);
         connections = databaseHelper.getConnections(connectionId);
 
+        if (!WhoImI.equals("klijent")) {
+            databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").setValue("");
+            databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").setValue("");
+            databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").setValue("");
+            databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").setValue("");
+            databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue("",new DatabaseReference.CompletionListener(){
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError == null) {
+                        if (WhoImI.equals("host")) {
+                            displayConnections(connectionDetails);
+                        }
+                    }
+                }
+            });
+        } else if(WhoImI.equals("klijent")){
+            databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").addValueEventListener(DrugaKolonaPrvoPolje);
+            databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").addValueEventListener(DrugaKolonaDrugoPolje);
+            databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").addValueEventListener(DrugaKolonaTrecePolje);
+            databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").addValueEventListener(DrugaKolonaCetvrtoPolje);
+            databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").addValueEventListener(DrugaKolonaPetoPolje);
+            databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
+            startSecondColomunListeners();
+        }
+
         startTimer(startTimer);
 
         if (guest.equals(checkGuest)) {
             displayConnectionsGuest(connectionDetails);
-        }
-
-        if (WhoImI.equals("host")) {
-            displayConnections(connectionDetails);
         }
 
         databaseReference.child("zapocniIgru").addValueEventListener(prebacivajeIgre);
@@ -255,10 +346,6 @@ public class SpojniceActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     connectionCounter = dataSnapshot.getValue(Integer.class);
-                    if (connectionCounter == 1 && WhoImI.equals("klijent")) {
-                        startSecondColomunListeners();
-                        databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
-                    }
                 }
 
                 @Override
@@ -266,6 +353,7 @@ public class SpojniceActivity extends AppCompatActivity {
                 }
             });
         }
+
         databaseReference.child("Spojnice").child("BrojDrugogOdgovora").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -346,29 +434,32 @@ public class SpojniceActivity extends AppCompatActivity {
         List<String> random = new ArrayList<String>();
 
         if (WhoImI.equals("host")) {
-            random.add(kolona11[1]);
-            random.add(kolona22[1]);
-            random.add(kolona33[1]);
-            random.add(kolona44[1]);
-            random.add(kolona55[1]);
-            Collections.shuffle(random);
+            if (listenerStartCounter == 0) {
+                random.add(kolona11[1]);
+                random.add(kolona22[1]);
+                random.add(kolona33[1]);
+                random.add(kolona44[1]);
+                random.add(kolona55[1]);
+                Collections.shuffle(random);
 
-            databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").setValue(random.get(0));
-            databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").setValue(random.get(1));
-            databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").setValue(random.get(2));
-            databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").setValue(random.get(3));
-            databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue(random.get(4));
+                databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").setValue(random.get(0));
+                databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").setValue(random.get(1));
+                databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").setValue(random.get(2));
+                databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").setValue(random.get(3));
+                databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue(random.get(4));
 
-            tvSpojica11.setText(kolona11[0]);
-            tvSpojica21.setText(random.get(0));
-            tvSpojica12.setText(kolona22[0]);
-            tvSpojica22.setText(random.get(1));
-            tvSpojica13.setText(kolona33[0]);
-            tvSpojica23.setText(random.get(2));
-            tvSpojica14.setText(kolona44[0]);
-            tvSpojica24.setText(random.get(3));
-            tvSpojica15.setText(kolona55[0]);
-            tvSpojica25.setText(random.get(4));
+                tvSpojica11.setText(kolona11[0]);
+                tvSpojica21.setText(random.get(0));
+                tvSpojica12.setText(kolona22[0]);
+                tvSpojica22.setText(random.get(1));
+                tvSpojica13.setText(kolona33[0]);
+                tvSpojica23.setText(random.get(2));
+                tvSpojica14.setText(kolona44[0]);
+                tvSpojica24.setText(random.get(3));
+                tvSpojica15.setText(kolona55[0]);
+                tvSpojica25.setText(random.get(4));
+                listenerStartCounter++;
+            }
         }
     }
 
@@ -388,32 +479,32 @@ public class SpojniceActivity extends AppCompatActivity {
 
         List<String> random = new ArrayList<String>();
 
-            random.add(kolona11[1]);
-            random.add(kolona22[1]);
-            random.add(kolona33[1]);
-            random.add(kolona44[1]);
-            random.add(kolona55[1]);
-            Collections.shuffle(random);
+        random.add(kolona11[1]);
+        random.add(kolona22[1]);
+        random.add(kolona33[1]);
+        random.add(kolona44[1]);
+        random.add(kolona55[1]);
+        Collections.shuffle(random);
 
-            tvSpojica11.setText(kolona11[0]);
-            tvSpojica21.setText(random.get(0));
-            tvSpojica12.setText(kolona22[0]);
-            tvSpojica22.setText(random.get(1));
-            tvSpojica13.setText(kolona33[0]);
-            tvSpojica23.setText(random.get(2));
-            tvSpojica14.setText(kolona44[0]);
-            tvSpojica24.setText(random.get(3));
-            tvSpojica15.setText(kolona55[0]);
-            tvSpojica25.setText(random.get(4));
+        tvSpojica11.setText(kolona11[0]);
+        tvSpojica21.setText(random.get(0));
+        tvSpojica12.setText(kolona22[0]);
+        tvSpojica22.setText(random.get(1));
+        tvSpojica13.setText(kolona33[0]);
+        tvSpojica23.setText(random.get(2));
+        tvSpojica14.setText(kolona44[0]);
+        tvSpojica24.setText(random.get(3));
+        tvSpojica15.setText(kolona55[0]);
+        tvSpojica25.setText(random.get(4));
     }
 
     private void updateFirstColumn(String correctConnections, String firstConnection, String secondConnecion, View v) {
         String[] correct = correctConnections.split(";");
-        String [] expectedResult1 = connections[0].split(";");
-        String [] expectedResult2 = connections[1].split(";");
-        String [] expectedResult3 = connections[2].split(";");
-        String [] expectedResult4 = connections[3].split(";");
-        String [] expectedResult5 = connections[4].split(";");
+        String[] expectedResult1 = connections[0].split(";");
+        String[] expectedResult2 = connections[1].split(";");
+        String[] expectedResult3 = connections[2].split(";");
+        String[] expectedResult4 = connections[3].split(";");
+        String[] expectedResult5 = connections[4].split(";");
 
         if (correct[0].equals(firstConnection) && correct[1].equals(secondConnecion)) {
             int textViewId = getResources().getIdentifier("kolona" + 1 + (connectionCounter + 1), "id", getPackageName());
@@ -452,13 +543,13 @@ public class SpojniceActivity extends AppCompatActivity {
                 String text = textView.getText().toString();
                 if (text.equals(expectedResult1[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno11");
-                } else if (text.equals(expectedResult2[1])) {
+                } else if (text.equals(expectedResult2[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno12");
-                } else if (text.equals(expectedResult3[2])) {
+                } else if (text.equals(expectedResult3[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno13");
-                } else if (text.equals(expectedResult4[3])) {
+                } else if (text.equals(expectedResult4[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno14");
-                } else if (text.equals(expectedResult5[4])) {
+                } else if (text.equals(expectedResult5[0])) {
                     databaseReference.child("Spojnice").child("PrvaKolona").setValue("netacno15");
                 }
             }
@@ -544,7 +635,6 @@ public class SpojniceActivity extends AppCompatActivity {
     }
 
     private void startSecondColomunListeners() {
-        List<String> random = new ArrayList<String>();
         String connection1 = connections[0];
         String connection2 = connections[1];
         String connection3 = connections[2];
@@ -556,90 +646,6 @@ public class SpojniceActivity extends AppCompatActivity {
         String[] kolona33 = connection3.split(";");
         String[] kolona44 = connection4.split(";");
         String[] kolona55 = connection5.split(";");
-        databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                assert value != null;
-                if (!value.equals("")) {
-                    random.add(value);
-                    tvSpojica21.setText(random.get(0));
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                assert value != null;
-                if (!value.equals("")) {
-                    random.add(value);
-                    tvSpojica22.setText(random.get(1));
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                assert value != null;
-                if (!value.equals("")) {
-                    random.add(value);
-                    tvSpojica23.setText(random.get(2));
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                assert value != null;
-                if (!value.equals("")) {
-                    random.add(value);
-                    tvSpojica24.setText(random.get(3));
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-
-        databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String value = dataSnapshot.getValue(String.class);
-                assert value != null;
-                if (!value.equals("")) {
-                    random.add(value);
-                    tvSpojica25.setText(random.get(4));
-                }
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
 
         tvSpojica11.setText(kolona11[0]);
         tvSpojica21.setEnabled(false);
@@ -695,6 +701,11 @@ public class SpojniceActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         stopAllTimers();
+        databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").removeEventListener(DrugaKolonaPetoPolje);
+        databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").removeEventListener(DrugaKolonaCetvrtoPolje);
+        databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").removeEventListener(DrugaKolonaTrecePolje);
+        databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").removeEventListener(DrugaKolonaDrugoPolje);
+        databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").removeEventListener(DrugaKolonaPrvoPolje);
         databaseReference.child("PrvaKolona").removeEventListener(updateClientValues);
         databaseReference.child("zapocniIgru").removeEventListener(prebacivajeIgre);
         super.onDestroy();

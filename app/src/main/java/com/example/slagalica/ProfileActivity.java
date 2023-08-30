@@ -81,8 +81,10 @@ public class ProfileActivity extends AppCompatActivity {
                     openProfile();
                 } else if (itemId == R.id.menu_home) {
                     openHome();
-                } else if (itemId == R.id.menu_leaderboard) {
-                    openLeaderboard();
+                }else if (itemId == R.id.menu_leaderboard_wins) {
+                    openLeaderboardWins();
+                } else if (itemId == R.id.menu_leaderboard_points) {
+                    openLeaderboardPoints();
                 } else if (itemId == R.id.menu_logout) {
                     logout();
                 }
@@ -104,6 +106,14 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(ProfileActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    private void openLeaderboardWins() {
+
+    }
+
+    private void openLeaderboardPoints() {
+
     }
 
     private void openLeaderboard() {
