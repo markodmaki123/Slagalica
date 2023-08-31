@@ -25,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class KorakPoKorakActivity extends AppCompatActivity {
     private DBHelper databaseHelper;
@@ -110,6 +111,26 @@ public class KorakPoKorakActivity extends AppCompatActivity {
                 "tigar"
         );
 
+        databaseHelper.insertSteps("Pominje se u Bajaginom pesmi",
+                "Ime je rijeke u Briselu",
+                "Ime fudbalera Markosa",
+                "Ime glumice Djorovic",
+                "Pariz lezi na toj rijeci",
+                "Legenda je formule 1",
+                "Obicno se pojavi na suncanom danu iza nas",
+                "sena"
+        );
+
+        databaseHelper.insertSteps("U filmu moze da leti",
+                "Moze imati veze sa zivotom",
+                "Moze imati veze sa morem",
+                "U domacem filmu je Prokleti",
+                "U domacem filmu je Voleo Vozove",
+                "Obicno zivi 7 puta manje nego covjek",
+                "To je covjek najbolji prijatelj",
+                "pas"
+        );
+
         bodovi = getIntent().getIntExtra("bodovi", 0);
 
         tvKorak1 = findViewById(R.id.TVKorak1);
@@ -145,14 +166,16 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         databaseReference.child("zapocniIgru").addValueEventListener(prebacivajeIgre);
 
         if (guest.equals(checkGuest)) {
-            stepId = 2;
+            Random random = new Random();
+            stepId = random.nextInt(3) + 1;
             stepCounter = 0;
             String[] stepDetails = databaseHelper.getStep(stepId);
             correctAnswer = stepDetails[7];
             displaySteps(stepDetails);
         } else if (WhoImI.equals("host")) {
             databaseReference.child("brojacKorakPoKorak").setValue(1);
-            stepId = 1;
+            Random random = new Random();
+            stepId = random.nextInt(3) + 1;
             stepCounter = 0;
             String[] stepDetails = databaseHelper.getStep(stepId);
             correctAnswer = stepDetails[7];

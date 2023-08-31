@@ -1,5 +1,6 @@
 package com.example.slagalica.games;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Random;
 
 public class KoZnaZnaActivity extends AppCompatActivity {
     private DBHelper databaseHelper;
@@ -34,6 +39,7 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     private TextView tvOdgovor2;
     private TextView tvOdgovor3;
     private TextView tvOdgovor4;
+    private Button btnKreni;
 
     private TextView timerView;
     private TextView bodoviView;
@@ -43,8 +49,17 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
     private String checkGuest = "guest";
     private String guest;
-    private String WhoImI="";
+    private String WhoImI = "";
     private int bodovi;
+
+    String[] questionDetails;
+    ArrayList<Integer> questionsGenerated = new ArrayList<>();
+    private int number1Generated = 0;
+    private int number2Generated = 0;
+    private int number3Generated = 0;
+    private int number4Generated = 0;
+    private int number5Generated = 0;
+    private String timerStart = "";
 
     private Boolean isFirst;
 
@@ -57,12 +72,43 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     private int currentQuestionId;
     private long remainingTime;
 
+    private ValueEventListener timerListener = new ValueEventListener() {
+        @Override
+        public void onDataChange(DataSnapshot dataSnapshot) {
+            timerStart = dataSnapshot.getValue(String.class);
+            if(timerStart.equals("1")) {
+                startTimer(startTimer);
+                questionsGenerated.add(number1Generated);
+                questionsGenerated.add(number2Generated);
+                questionsGenerated.add(number3Generated);
+                questionsGenerated.add(number4Generated);
+                questionsGenerated.add(number5Generated);
+                questionDetails = databaseHelper.getQuestion(questionsGenerated.get(0));
+                correctAnswerIndex = Integer.parseInt(questionDetails[5]);
+                tvPitanje.setVisibility(View.VISIBLE);
+                tvOdgovor1.setVisibility(View.VISIBLE);
+                tvOdgovor2.setVisibility(View.VISIBLE);
+                tvOdgovor3.setVisibility(View.VISIBLE);
+                tvOdgovor4.setVisibility(View.VISIBLE);
+                displayQuestion(questionDetails);
+            }
+        }
+
+        @Override
+        public void onCancelled(DatabaseError databaseError) {
+        }
+    };
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ko_zna_zna);
 
         currentQuestionId = 0;
+
+        btnKreni = findViewById(R.id.btnStart);
 
         databaseHelper = new DBHelper(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
@@ -75,6 +121,11 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         databaseHelper.insertQuestion("Koja je najveća reka u Evropi?", "Dunav", "Volga", "Rajna", "Tisa", 1);
         databaseHelper.insertQuestion("Ko je autor knjige 'Rat i mir'?", "Lev Tolstoj", "Fjodor Dostojevski", "Anton Pavlovič Čehov", "Ivan Turgenjev", 0);
         databaseHelper.insertQuestion("Ko je napisao dramu 'Hamlet'?", "William Shakespeare", "Arthur Miller", "Antonin Artaud", "Samuel Beckett", 0);
+        databaseHelper.insertQuestion("Koji od sljedecih timova nisu u Formuli 1?", "Ferrari", "Mercedes", "Citroen", "RedBull", 2);
+        databaseHelper.insertQuestion("Ko je osvojio Ligu sampiona 2022/2023 u fudbalu?", "Real Madrid", "PSG", "Bayern Munich", "Manchester City", 3);
+        databaseHelper.insertQuestion("Ko je osvojio Svjetsko prvenstvo u fudbalu 2022. godine?", "Argentina", "Holandija", "Engleska", "Francuska", 0);
+        databaseHelper.insertQuestion("Koliko okeana ima na svijetu?", "6", "4", "7", "5", 3);
+        databaseHelper.insertQuestion("Ko je osvojio NBA sampiona u sezoni 2022/2023?", "Philadelphia 76er's", "Los Angeles Lakers", "Denver Nuggets", "Golden State Warriors", 2);
 
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
@@ -89,36 +140,106 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             WhoImI = "";
         }
 
-        if(!guest.equals(checkGuest)) {
+        if (!guest.equals(checkGuest)) {
             databaseReference.child("koznazna").child("amIFirst").setValue(true);
-            Toast.makeText(this, "Vasa uloga u ovoj partiji je |"+ WhoImI + "|", Toast.LENGTH_SHORT).show();
         }
 
-        if(!guest.equals(checkGuest)) {
+        if (!guest.equals(checkGuest)) {
             databaseReference.child("koznazna").child("amIFirst").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     isFirst = dataSnapshot.getValue(Boolean.class);
                 }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
-        }
-
-        if(!guest.equals(checkGuest)) {
-            databaseReference.child("koznazna").child("questionId").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                  //   currentQuestionId = dataSnapshot.getValue(Integer.class);
-                     // ovdje bi trebalo dodat ako cemo imat vise jos pitanja
-                }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
         }
+
+
+        if (WhoImI.equals("klijent")) {
+            databaseReference.child("koznazna").child("Timer").addValueEventListener(timerListener);
+            btnKreni.setVisibility(View.INVISIBLE);
+            DatabaseReference koznaznaRef = databaseReference.child("koznazna");
+
+            koznaznaRef.child("question1Id").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Integer value = snapshot.getValue(Integer.class);
+                    if (value != null) {
+                        number1Generated = value;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle onCancelled if needed
+                }
+            });
+
+            koznaznaRef.child("question2Id").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Integer value = snapshot.getValue(Integer.class);
+                    if (value != null) {
+                        number2Generated = value;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle onCancelled if needed
+                }
+            });
+
+            // Repeat the above code for question3id and question4id
+            koznaznaRef.child("question3Id").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Integer value = snapshot.getValue(Integer.class);
+                    if (value != null) {
+                        number3Generated = value;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle onCancelled if needed
+                }
+            });
+
+            koznaznaRef.child("question4Id").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Integer value = snapshot.getValue(Integer.class);
+                    if (value != null) {
+                        number4Generated = value;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle onCancelled if needed
+                }
+            });
+
+            koznaznaRef.child("question5Id").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Integer value = snapshot.getValue(Integer.class);
+                    if (value != null) {
+                        number5Generated = value;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // Handle onCancelled if needed
+                }
+            });
+        }
+
 
 
         timerView = findViewById(R.id.TVTimer);
@@ -131,14 +252,71 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         tvOdgovor3 = findViewById(R.id.TVOdgovor3);
         tvOdgovor4 = findViewById(R.id.TVOdgovor4);
 
-        questionId = 1; // The ID of the desired question
-        String[] questionDetails = databaseHelper.getQuestion(questionId);
-
-        displayQuestion(questionDetails);
-        startTimer(startTimer);
-
-
+        if (!guest.equals(checkGuest) && WhoImI.equals("host")) {
+            tvPitanje.setVisibility(View.INVISIBLE);
+            tvOdgovor1.setVisibility(View.INVISIBLE);
+            tvOdgovor2.setVisibility(View.INVISIBLE);
+            tvOdgovor3.setVisibility(View.INVISIBLE);
+            tvOdgovor4.setVisibility(View.INVISIBLE);
+            btnKreni.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    questionId = 0;
+                    questionsGenerated = generateQuestions();
+                    databaseReference.child("koznazna").child("question1Id").setValue(questionsGenerated.get(0));
+                    databaseReference.child("koznazna").child("question2Id").setValue(questionsGenerated.get(1));
+                    databaseReference.child("koznazna").child("question3Id").setValue(questionsGenerated.get(2));
+                    databaseReference.child("koznazna").child("question4Id").setValue(questionsGenerated.get(3));
+                    databaseReference.child("koznazna").child("question5Id").setValue(questionsGenerated.get(4));
+                    questionDetails = databaseHelper.getQuestion(questionsGenerated.get(0));
+                    correctAnswerIndex = Integer.parseInt(questionDetails[5]);
+                    tvPitanje.setVisibility(View.VISIBLE);
+                    tvOdgovor1.setVisibility(View.VISIBLE);
+                    tvOdgovor2.setVisibility(View.VISIBLE);
+                    tvOdgovor3.setVisibility(View.VISIBLE);
+                    tvOdgovor4.setVisibility(View.VISIBLE);
+                    displayQuestion(questionDetails);
+                    startTimer(startTimer);
+                    databaseReference.child("koznazna").child("Timer").setValue("1");
+                    btnKreni.setVisibility(View.INVISIBLE);
+                }
+            });
+        } else if (guest.equals(checkGuest)) {
+            btnKreni.setVisibility(View.INVISIBLE);
+            questionId = 0;
+            questionsGenerated = generateQuestions();
+            questionDetails = databaseHelper.getQuestion(questionsGenerated.get(0));
+            displayQuestion(questionDetails);
+            correctAnswerIndex = Integer.parseInt(questionDetails[5]);
+            startTimer(startTimer);
+        } else if (WhoImI.equals("klijent")) {
+            tvPitanje.setVisibility(View.INVISIBLE);
+            tvOdgovor1.setVisibility(View.INVISIBLE);
+            tvOdgovor2.setVisibility(View.INVISIBLE);
+            tvOdgovor3.setVisibility(View.INVISIBLE);
+            tvOdgovor4.setVisibility(View.INVISIBLE);
+            questionId = 0;
+        }
     }
+
+    private ArrayList<Integer> generateQuestions() {
+        int min = 1;
+        int max = 10;
+        int count = 5;
+
+        ArrayList<Integer> numbers = new ArrayList<>();
+        Random rand = new Random();
+
+        while (numbers.size() < count) {
+            int randomNumber = rand.nextInt(max - min + 1) + min;
+
+            if (!numbers.contains(randomNumber)) {
+                numbers.add(randomNumber);
+            }
+        }
+        return numbers;
+    }
+
 
     private void displayQuestion(String[] questionDetails) {
         // Prikazi pitanje
@@ -195,16 +373,15 @@ public class KoZnaZnaActivity extends AppCompatActivity {
 
     private void checkAnswer(int selectedAnswerIndex) {
         if (selectedAnswerIndex == correctAnswerIndex) {
-            if(!guest.equals(checkGuest)) {
+            if (!guest.equals(checkGuest)) {
                 databaseReference.child("koznazna").child("amIFirst").setValue(!isFirst);
             }
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             selectedAnswerTextView.setBackgroundColor(Color.GREEN);
-            if(!guest.equals(checkGuest)){
-                if (isFirst ) {
+            if (!guest.equals(checkGuest)) {
+                if (isFirst) {
                     bodovi = bodovi + 10;
-                }
-                else {
+                } else {
                     Toast.makeText(this, "Nazalost, protivnik vas je preduhitrio.", Toast.LENGTH_SHORT).show();
                 }
             } else {
@@ -214,11 +391,10 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             bodoviView.setText(String.valueOf(bodovi));
 
 
-        } else if(selectedAnswerIndex == -1){
+        } else if (selectedAnswerIndex == -1) {
             TextView correctAnswerTextView = getAnswerTextView(correctAnswerIndex);
             correctAnswerTextView.setBackgroundColor(Color.GREEN);
-        }
-        else {
+        } else {
             TextView correctAnswerTextView = getAnswerTextView(correctAnswerIndex);
             TextView selectedAnswerTextView = getAnswerTextView(selectedAnswerIndex);
             bodovi = bodovi - 5;
@@ -227,9 +403,9 @@ public class KoZnaZnaActivity extends AppCompatActivity {
             selectedAnswerTextView.setBackgroundColor(Color.RED);
         }
 
-       if (!timerFinished) {
+        if (!timerFinished) {
             timer.cancel();
-           timerFinished = true;
+            timerFinished = true;
         }
 
         disableAnswerClicks();
@@ -329,37 +505,36 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     }
 
     private void moveToNextQuestion() {
-        String[] nextQuestion = databaseHelper.getQuestion(questionId + 1);
-        questionId += 1;
-        if (questionId > 5) {
+        if (questionId == 4) {
             timer.cancel();
-            if(WhoImI.equals("") ){
-            Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
-            intent.putExtra("user", "guest");
-            intent.putExtra("bodovi", bodovi);
-            startActivity(intent);
-            finish();
-            } else {
-                databaseHelper.insertQuestion("Koliko je Kina dobila po guzi", "40 zlike", "Venera", "Mars", "Saturn", 0);
+            if (guest.equals(checkGuest)) {
+                Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
+                intent.putExtra("user", "guest");
+                intent.putExtra("bodovi", bodovi);
+                startActivity(intent);
+                finish();
+            } else if (WhoImI.equals("host") || WhoImI.equals("klijent")) {
                 Intent intent = new Intent(KoZnaZnaActivity.this, KorakPoKorakActivity.class);
                 intent.putExtra("WhoImI", WhoImI);
                 intent.putExtra("bodovi", bodovi);
                 startActivity(intent);
                 finish();
             }
-        } else if (nextQuestion != null) {
-            currentQuestion = nextQuestion[0];
-            currentAnswers = new String[]{
-                    nextQuestion[1],
-                    nextQuestion[2],
-                    nextQuestion[3],
-                    nextQuestion[4]
-            };
-            correctAnswerIndex = Integer.parseInt(nextQuestion[5]);
-
-            // Prikazivanje sledećeg pitanja
-            displayQuestion(nextQuestion);
-            restartTimer();
+        } else {
+            questionId += 1;
+            String[] nextQuestion = databaseHelper.getQuestion(questionsGenerated.get(questionId));
+            if (nextQuestion != null) {
+                currentQuestion = nextQuestion[0];
+                currentAnswers = new String[]{
+                        nextQuestion[1],
+                        nextQuestion[2],
+                        nextQuestion[3],
+                        nextQuestion[4]
+                };
+                correctAnswerIndex = Integer.parseInt(nextQuestion[5]);
+                displayQuestion(nextQuestion);
+                restartTimer();
+            }
         }
     }
 }

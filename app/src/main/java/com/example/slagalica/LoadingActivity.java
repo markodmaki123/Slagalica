@@ -31,6 +31,7 @@ public class LoadingActivity extends AppCompatActivity {
         databaseReference.child("client").setValue("0");
         databaseReference.child("MojBrojBrojac").setValue("0");
         databaseReference.child("idIgreKorakPoKorak").setValue(0);
+        databaseReference.child("koznazna").child("Timer").setValue("0");
 
 
         //zapocni igru

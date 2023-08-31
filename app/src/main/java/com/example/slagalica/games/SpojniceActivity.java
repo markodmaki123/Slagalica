@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class SpojniceActivity extends AppCompatActivity {
 
@@ -51,11 +52,14 @@ public class SpojniceActivity extends AppCompatActivity {
     private CountDownTimer timer;
     private long startTimer = 60000;
 
+    String[] connectionDetails;
+
     private String checkGuest = "guest";
     private String guest;
     private int bodovi;
 
     String zapocniIgru = "";
+    private String prvaKolona = "";
     private String drugaKolona = "";
 
     private String WhoImI = "";
@@ -75,7 +79,8 @@ public class SpojniceActivity extends AppCompatActivity {
             assert value != null;
             if (!value.equals("")) {
                 tvSpojica21.setText(value);
-            }}
+            }
+        }
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
@@ -180,7 +185,7 @@ public class SpojniceActivity extends AppCompatActivity {
     private ValueEventListener updateClientValues = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
-            String prvaKolona = dataSnapshot.getValue(String.class);
+            prvaKolona = dataSnapshot.getValue(String.class);
             if (prvaKolona == null) {
                 prvaKolona = "";
             }
@@ -241,7 +246,7 @@ public class SpojniceActivity extends AppCompatActivity {
                     break;
                 }
             }
-            //databaseReference.child("Spojnice").child("PrvaKolona").removeEventListener(updateClientValues);
+            databaseReference.child("Spojnice").child("PrvaKolona").removeEventListener(updateClientValues);
         }
 
 
@@ -286,6 +291,27 @@ public class SpojniceActivity extends AppCompatActivity {
                 "Andrew;Murray"
         );
 
+        databaseHelper.insertConnections("Max;Verstappen",
+                "Lewis;Hamilton",
+                "Michael;Schumacher",
+                "Ayrton;Senna",
+                "Kimi;Raikkonen"
+        );
+
+        databaseHelper.insertConnections("Beograd;Srbija",
+                "Bukurest;Rumunija",
+                "Paris;Francuska",
+                "Moskva;Rusija",
+                "Lisabon;Portugal"
+        );
+
+        databaseHelper.insertConnections("Lionel;Messi",
+                "Erling;Haaland",
+                "Kevin;DeBruyne",
+                "Sergio;Ramos",
+                "Khvicha;Kvaratskhelia"
+        );
+
         tvSpojica11 = findViewById(R.id.kolona11);
         tvSpojica12 = findViewById(R.id.kolona12);
         tvSpojica13 = findViewById(R.id.kolona13);
@@ -302,18 +328,46 @@ public class SpojniceActivity extends AppCompatActivity {
 
         bodoviView.setText(String.valueOf(bodovi));
 
-        connectionId = 1;
-        connectionCounter = 0;
-        correctCounter = 0;
-        String[] connectionDetails = databaseHelper.getConnections(connectionId);
-        connections = databaseHelper.getConnections(connectionId);
+        if (WhoImI.equals("host")) {
+            Random random = new Random();
+            connectionId = random.nextInt(3) + 1;
+            connectionCounter = 0;
+            correctCounter = 0;
+            connectionDetails = databaseHelper.getConnections(connectionId);
+            connections = databaseHelper.getConnections(connectionId);
+            databaseReference.child("Spojnice").child("idSpojnice").setValue(connectionId);
+        } else if (WhoImI.equals("klijent")) {
+            databaseReference.child("Spojnice").child("idSpojnice").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Integer value = dataSnapshot.getValue(Integer.class);
+                    if (value != null) {
+                        connectionDetails = databaseHelper.getConnections(value);
+                        connections = databaseHelper.getConnections(value);
+                        startSecondColomunListeners();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+
+        } else if (guest.equals(checkGuest)) {
+            Random random = new Random();
+            connectionId = random.nextInt(3) + 1;
+            connectionCounter = 0;
+            correctCounter = 0;
+            connectionDetails = databaseHelper.getConnections(connectionId);
+            connections = databaseHelper.getConnections(connectionId);
+        }
 
         if (!WhoImI.equals("klijent")) {
             databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").setValue("");
             databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").setValue("");
             databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").setValue("");
             databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").setValue("");
-            databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue("",new DatabaseReference.CompletionListener(){
+            databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").setValue("", new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError == null) {
@@ -323,14 +377,12 @@ public class SpojniceActivity extends AppCompatActivity {
                     }
                 }
             });
-        } else if(WhoImI.equals("klijent")){
+        } else if (WhoImI.equals("klijent")) {
             databaseReference.child("Spojnice").child("DrugaKolonaPrvoPolje").addValueEventListener(DrugaKolonaPrvoPolje);
             databaseReference.child("Spojnice").child("DrugaKolonaDrugoPolje").addValueEventListener(DrugaKolonaDrugoPolje);
             databaseReference.child("Spojnice").child("DrugaKolonaTrecePolje").addValueEventListener(DrugaKolonaTrecePolje);
             databaseReference.child("Spojnice").child("DrugaKolonaCetvrtoPolje").addValueEventListener(DrugaKolonaCetvrtoPolje);
             databaseReference.child("Spojnice").child("DrugaKolonaPetoPolje").addValueEventListener(DrugaKolonaPetoPolje);
-            databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
-            startSecondColomunListeners();
         }
 
         startTimer(startTimer);
@@ -346,6 +398,10 @@ public class SpojniceActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     connectionCounter = dataSnapshot.getValue(Integer.class);
+                    if (connectionCounter > 0 && connectionCounter < 6) {
+                        databaseReference.child("Spojnice").child("PrvaKolona").addValueEventListener(updateClientValues);
+                        Toast.makeText(SpojniceActivity.this, String.valueOf(connectionCounter), Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override
@@ -354,11 +410,37 @@ public class SpojniceActivity extends AppCompatActivity {
             });
         }
 
+
         databaseReference.child("Spojnice").child("BrojDrugogOdgovora").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 drugaKolona = dataSnapshot.getValue(String.class);
+                if (connectionCounter == 4) {
+                    switch (drugaKolona) {
+                        case "tacno21": {
+                            tvSpojica21.setBackgroundColor(Color.GREEN);
+                            break;
+                        }
+                        case "tacno22": {
+                            tvSpojica22.setBackgroundColor(Color.GREEN);
+                            break;
+                        }
+                        case "tacno23": {
+                            tvSpojica23.setBackgroundColor(Color.GREEN);
+                            break;
+                        }
+                        case "tacno24": {
+                            tvSpojica24.setBackgroundColor(Color.GREEN);
+                            break;
+                        }
+                        case "tacno25": {
+                            tvSpojica25.setBackgroundColor(Color.GREEN);
+                            break;
+                        }
+                    }
+                }
             }
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -564,6 +646,7 @@ public class SpojniceActivity extends AppCompatActivity {
                 public void run() {
                     if (!guest.equals(checkGuest)) {
                         if (WhoImI.equals("host")) {
+                            connectionCounter++;
                             tvSpojica21.setEnabled(false);
                             tvSpojica22.setEnabled(false);
                             tvSpojica23.setEnabled(false);
@@ -577,7 +660,10 @@ public class SpojniceActivity extends AppCompatActivity {
                                 }
                             }
                         } else if (WhoImI.equals("klijent")) {
-                            //uradi klijenta
+
+                            if (correctCounter != 5) {
+                                //if(tvSpojica21) uradi kad chatgpt pcone radit
+                            }
                         }
                     } else {
                         Intent intent = new Intent(SpojniceActivity.this, AsocijacijeActivity.class);
@@ -587,7 +673,7 @@ public class SpojniceActivity extends AppCompatActivity {
                         finish();
                     }
                 }
-            }, 3000);
+            }, 2000);
         } else {
             connectionCounter++;
             databaseReference.child("Spojnice").child("Brojac").setValue(connectionCounter);

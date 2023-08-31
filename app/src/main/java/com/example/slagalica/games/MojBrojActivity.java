@@ -238,7 +238,8 @@ public class MojBrojActivity extends AppCompatActivity {
         Random random = new Random();
 
         // Generisanje prvih četiri jednocifrena broja
-        int jednocifreni1 = random.nextInt(9) + 1;
+        //int jednocifreni1 = random.nextInt(9) + 1; da bude 5
+        int jednocifreni1 = 5;
         int jednocifreni2 = random.nextInt(9) + 1;
         int jednocifreni3 = random.nextInt(9) + 1;
         int jednocifreni4 = random.nextInt(9) + 1;
