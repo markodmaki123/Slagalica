@@ -25,6 +25,8 @@ import android.widget.Toast;
 
 import com.example.slagalica.dataBase.DBHelper;
 import com.example.slagalica.games.MojBrojActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -37,13 +39,16 @@ public class LoginActivity extends AppCompatActivity {
     private SensorEventListener sensorEventListener;
     private TextView lightValueTextView;
 
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
+
     private DBHelper dbHelper;
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
 
     private final int MY_PERMISSION_REQUEST_CODE = 1000;
 
-
+    private boolean loginSuccessful;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -72,13 +77,8 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
 
-        SharedPreferences sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        String emailTest = "marko@gmail.com";
-        String usernameTest = "123";
-        String passwordTest = "123";
-        dbHelper.insertUser(emailTest, usernameTest, passwordTest);
-
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         Button loginButton = findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -86,20 +86,14 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 EditText usernameET = findViewById(R.id.username_edit_text);
                 EditText passwordET = findViewById(R.id.password_edit_text);
-
-                String username = usernameET.getText().toString();
+                String email = usernameET.getText().toString();
                 String password = passwordET.getText().toString();
-
-                boolean loginSuccessful = dbHelper.loginUser(username, password);
-                if (loginSuccessful) {
-                    editor.putString("currentUser", username);
-                    editor.apply();
-                    Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
-                    startActivity(homeIntent);
-                    finish();
-                } else {
-                    Toast.makeText(getApplicationContext(), "Prijavljivanje nije uspelo. Proverite korisničko ime i lozinku.", Toast.LENGTH_SHORT).show();
+                if(email==null || password==null){
+                    email ="";
+                    password="";
                 }
+                loginUser(email, password);
+
             }
         });
 
@@ -133,6 +127,27 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    public void loginUser(String email, String password) {
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+        mAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            editor.putString("currentUser", email);
+                            editor.apply();
+                            Intent homeIntent = new Intent(LoginActivity.this, HomeActivity.class);
+                            startActivity(homeIntent);
+                            finish();
+
+                        }
+                    } else {
+                        Toast.makeText(getApplicationContext(), "Prijavljivanje nije uspelo. Proverite korisničko ime i lozinku.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
     @Override
     protected void onResume() {
