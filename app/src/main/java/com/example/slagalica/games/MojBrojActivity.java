@@ -36,6 +36,7 @@ public class MojBrojActivity extends AppCompatActivity {
     private SensorManager sensorManager;
     private Sensor accelerometerSensor;
     private SensorEventListener sensorEventListener;
+    private boolean isShaken = false;
 
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
@@ -231,7 +232,7 @@ public class MojBrojActivity extends AppCompatActivity {
                     float z = event.values[2];
 
                     // Detektujte podrhtavanje uređaja (možete prilagoditi prag)
-                    if (Math.sqrt(x * x + y * y + z * z) > 15) {
+                    if (!isShaken && Math.sqrt(x * x + y * y + z * z) > 15 && WhoImI.equals("host")){
                         startTimer(timerTime);
                         generisiBrojeve();
                         if (!guest.equals(checkGuest)) {
@@ -249,6 +250,7 @@ public class MojBrojActivity extends AppCompatActivity {
                             databaseReference.child("brojevi").child("brojRestart").setValue("1");
                         }
                         btnStop.setVisibility(View.INVISIBLE);
+                        isShaken = true;
                     }
                 }
 

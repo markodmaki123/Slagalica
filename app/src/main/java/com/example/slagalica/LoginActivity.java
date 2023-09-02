@@ -11,11 +11,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
 import android.Manifest;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.slagalica.dataBase.DBHelper;
@@ -26,6 +31,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.io.ByteArrayOutputStream;
 
 public class LoginActivity extends AppCompatActivity {
+
+    private SensorManager sensorManager;
+    private Sensor lightSensor;
+    private SensorEventListener sensorEventListener;
+    private TextView lightValueTextView;
+
     private DBHelper dbHelper;
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
@@ -38,6 +49,25 @@ public class LoginActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        lightValueTextView = findViewById(R.id.lightValueTextView); // Pretpostavljamo da imate TextView za prikaz vrednosti svetlosti
+
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+
+        if (lightSensor != null) {
+            sensorEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    float lightValue = event.values[0];
+                    lightValueTextView.setText("Svetlost: " + lightValue);
+                }
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                }
+            };
+        }
+
+
         dbHelper = new DBHelper(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
@@ -103,5 +133,20 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (lightSensor != null) {
+            sensorManager.registerListener(sensorEventListener, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (lightSensor != null) {
+            sensorManager.unregisterListener(sensorEventListener);
+        }
     }
 }
