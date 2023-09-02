@@ -2,8 +2,13 @@ package com.example.slagalica.games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
@@ -15,7 +20,6 @@ import android.widget.Toast;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 
-import com.example.slagalica.HomeActivity;
 import com.example.slagalica.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,6 +32,10 @@ import java.util.List;
 import java.util.Random;
 
 public class MojBrojActivity extends AppCompatActivity {
+
+    private SensorManager sensorManager;
+    private Sensor accelerometerSensor;
+    private SensorEventListener sensorEventListener;
 
     DatabaseReference databaseReference;
     String databaseUrl = "https://slagalica-76836-default-rtdb.europe-west1.firebasedatabase.app/";
@@ -210,8 +218,48 @@ public class MojBrojActivity extends AppCompatActivity {
                 }
             }
         });
+
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        if (accelerometerSensor != null) {
+            sensorEventListener = new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    float x = event.values[0];
+                    float y = event.values[1];
+                    float z = event.values[2];
+
+                    // Detektujte podrhtavanje uređaja (možete prilagoditi prag)
+                    if (Math.sqrt(x * x + y * y + z * z) > 15) {
+                        startTimer(timerTime);
+                        generisiBrojeve();
+                        if (!guest.equals(checkGuest)) {
+                            databaseReference.child("brojevi").child("resenjeServera").setValue(false);
+                            databaseReference.child("brojevi").child("resenjePoslano").setValue(false);
+
+
+                            databaseReference.child("brojevi").child("trazeni").setValue(tvTrazeniBroj.getText().toString());
+                            databaseReference.child("brojevi").child("broj1").setValue(tvJednocifreni1.getText().toString());
+                            databaseReference.child("brojevi").child("broj2").setValue(tvJednocifreni2.getText().toString());
+                            databaseReference.child("brojevi").child("broj3").setValue(tvJednocifreni3.getText().toString());
+                            databaseReference.child("brojevi").child("broj4").setValue(tvJednocifreni4.getText().toString());
+                            databaseReference.child("brojevi").child("srednji").setValue(tvSrednji.getText().toString());
+                            databaseReference.child("brojevi").child("veliki").setValue(tvVeliki.getText().toString());
+                            databaseReference.child("brojevi").child("brojRestart").setValue("1");
+                        }
+                        btnStop.setVisibility(View.INVISIBLE);
+                    }
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                    // Ne morate implementirati ovo za sejker senzor
+                }
+            };
+        }
+
         if (guest == "") {
-            Toast.makeText(this, "Vasa uloga u ovoj partiji je |"+ WhoImI + "|", Toast.LENGTH_SHORT).show();
             if (WhoImI.equals("klijent")) {
                 databaseReference.child("brojevi").addValueEventListener(brojevi);
             }
@@ -457,6 +505,22 @@ public class MojBrojActivity extends AppCompatActivity {
         databaseReference.child("brojevi").removeEventListener(brojevi);
 
         super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (accelerometerSensor != null) {
+            sensorManager.registerListener(sensorEventListener, accelerometerSensor, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (accelerometerSensor != null) {
+            sensorManager.unregisterListener(sensorEventListener);
+        }
     }
 
 }
