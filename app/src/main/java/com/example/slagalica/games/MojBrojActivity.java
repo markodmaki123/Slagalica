@@ -5,12 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -51,6 +54,7 @@ public class MojBrojActivity extends AppCompatActivity {
     private TextView tvVeliki;
     private TextView timerView;
     private TextView bodoviView;
+    private TextView tvProtinik;
 
     private CountDownTimer timer;
     private long timerTime = 60000;
@@ -58,6 +62,9 @@ public class MojBrojActivity extends AppCompatActivity {
     private Button btnStop;
     private Button btnKonacnoMojBroj;
 
+
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
 
     private String checkGuest = "guest";
     private String guest;
@@ -84,6 +91,9 @@ public class MojBrojActivity extends AppCompatActivity {
             String srednji = dataSnapshot.child("srednji").getValue(String.class);
             String veliki = dataSnapshot.child("veliki").getValue(String.class);
 
+            String protivnik = sharedPreferences.getString("mojProtivnik", "");
+
+            tvProtinik.setText("VS " + protivnik);
             tvTrazeniBroj.setText(trazeni);
             tvJednocifreni1.setText(broj1);
             tvJednocifreni2.setText(broj2);
@@ -134,6 +144,9 @@ public class MojBrojActivity extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
 
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
@@ -147,7 +160,7 @@ public class MojBrojActivity extends AppCompatActivity {
             WhoImI = "";
         }
 
-
+        tvProtinik = findViewById(R.id.TVProtivnik);
         tvTrazeniBroj = findViewById(R.id.TVTrazeniBroj);
         timerView = findViewById(R.id.TVTimer);
         bodoviView = findViewById(R.id.TVBodovi);
@@ -165,7 +178,18 @@ public class MojBrojActivity extends AppCompatActivity {
 
         if (!guest.equals(checkGuest)) {
             if (WhoImI.equals("klijent")) {
+                if(!sharedPreferences.contains("mojProtivnik")) {
+                    String protivnik = sharedPreferences.getString("mojProtivnik1", "");
+                    editor.putString("mojProtivnik", protivnik);
+                    editor.apply();
+                }
                 btnStop.setVisibility(View.INVISIBLE);
+            } else if (WhoImI.equals("host")) {
+                if(!sharedPreferences.contains("mojProtivnik")) {
+                    String protivnik = sharedPreferences.getString("mojProtivnik2", "");
+                    editor.putString("mojProtivnik", protivnik);
+                    editor.apply();
+                }
             }
         }
 
@@ -204,10 +228,12 @@ public class MojBrojActivity extends AppCompatActivity {
                 startTimer(timerTime);
                 generisiBrojeve();
                 if (!guest.equals(checkGuest)) {
+                    String protivnik = sharedPreferences.getString("mojProtivnik", "");
+
+                    tvProtinik.setText("VS " + protivnik);
+
                     databaseReference.child("brojevi").child("resenjeServera").setValue(false);
                     databaseReference.child("brojevi").child("resenjePoslano").setValue(false);
-
-
                     databaseReference.child("brojevi").child("trazeni").setValue(tvTrazeniBroj.getText().toString());
                     databaseReference.child("brojevi").child("broj1").setValue(tvJednocifreni1.getText().toString());
                     databaseReference.child("brojevi").child("broj2").setValue(tvJednocifreni2.getText().toString());
@@ -232,7 +258,7 @@ public class MojBrojActivity extends AppCompatActivity {
                     float z = event.values[2];
 
                     // Detektujte podrhtavanje uređaja (možete prilagoditi prag)
-                    if (!isShaken && Math.sqrt(x * x + y * y + z * z) > 15 && WhoImI.equals("host")){
+                    if (!isShaken && Math.sqrt(x * x + y * y + z * z) > 15 && WhoImI.equals("host")) {
                         startTimer(timerTime);
                         generisiBrojeve();
                         if (!guest.equals(checkGuest)) {
@@ -486,6 +512,7 @@ public class MojBrojActivity extends AppCompatActivity {
         timer.start();
         activeTimers.add(timer);
     }
+
     private void stopAllTimers() {
         for (CountDownTimer timer : activeTimers) {
             timer.cancel();

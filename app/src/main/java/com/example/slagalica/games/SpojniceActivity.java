@@ -2,7 +2,9 @@ package com.example.slagalica.games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -40,12 +42,16 @@ public class SpojniceActivity extends AppCompatActivity {
     private TextView tvSpojica13;
     private TextView tvSpojica14;
     private TextView tvSpojica15;
+    private TextView tvProtinik;
 
     private TextView tvSpojica21;
     private TextView tvSpojica22;
     private TextView tvSpojica23;
     private TextView tvSpojica24;
     private TextView tvSpojica25;
+
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
 
     private TextView timerView;
     private TextView bodoviView;
@@ -265,6 +271,9 @@ public class SpojniceActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
 
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         databaseReference.child("Spojnice").child("PrvaKolona").setValue("");
         databaseReference.child("Spojnice").child("BrojDrugogOdgovora").setValue("");
 
@@ -312,6 +321,7 @@ public class SpojniceActivity extends AppCompatActivity {
                 "Khvicha;Kvaratskhelia"
         );
 
+        tvProtinik = findViewById(R.id.TVProtivnik);
         tvSpojica11 = findViewById(R.id.kolona11);
         tvSpojica12 = findViewById(R.id.kolona12);
         tvSpojica13 = findViewById(R.id.kolona13);
@@ -327,6 +337,10 @@ public class SpojniceActivity extends AppCompatActivity {
         bodoviView = findViewById(R.id.TVBodovi);
 
         bodoviView.setText(String.valueOf(bodovi));
+
+        String protivnik = sharedPreferences.getString("mojProtivnik", "");
+
+        tvProtinik.setText("VS " + protivnik);
 
         if (WhoImI.equals("host")) {
             Random random = new Random();

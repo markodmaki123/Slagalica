@@ -2,7 +2,9 @@ package com.example.slagalica.games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -44,6 +46,10 @@ public class KorakPoKorakActivity extends AppCompatActivity {
     private EditText etOdgovor;
     private Button btnKorak;
     private Button btnZapocni;
+    private TextView tvProtinik;
+
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
 
     private TextView timerView;
     private TextView bodoviView;
@@ -77,6 +83,9 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         databaseReference = database.getReference();
 
         databaseReference.child("KorakPoKorak").child("BrojKoraka").setValue(0);
+
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         guest = getIntent().getStringExtra("user");
         bodovi = getIntent().getIntExtra("bodovi", 0);
@@ -133,6 +142,7 @@ public class KorakPoKorakActivity extends AppCompatActivity {
 
         bodovi = getIntent().getIntExtra("bodovi", 0);
 
+        tvProtinik = findViewById(R.id.TVProtivnik);
         tvKorak1 = findViewById(R.id.TVKorak1);
         tvKorak1.setVisibility(View.INVISIBLE);
         tvKorak2 = findViewById(R.id.TVKorak2);
@@ -153,6 +163,10 @@ public class KorakPoKorakActivity extends AppCompatActivity {
         bodoviView = findViewById(R.id.TVBodovi);
         bodoviView.setText(String.valueOf(bodovi));
         btnZapocni = findViewById(R.id.btnZapocni);
+
+        String protivnik = sharedPreferences.getString("mojProtivnik", "");
+
+        tvProtinik.setText("VS " + protivnik);
 
         btnKorak.setVisibility(View.INVISIBLE);
 

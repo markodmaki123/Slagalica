@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -40,12 +42,16 @@ public class KoZnaZnaActivity extends AppCompatActivity {
     private TextView tvOdgovor3;
     private TextView tvOdgovor4;
     private Button btnKreni;
+    private TextView tvProtinik;
 
     private TextView timerView;
     private TextView bodoviView;
     private CountDownTimer timer;
     private boolean timerFinished;
     private long startTimer = 5000;
+
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
 
     private String checkGuest = "guest";
     private String guest;
@@ -113,6 +119,9 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         databaseHelper = new DBHelper(this);
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
+
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
 
         // Ubacite pitanja u bazu podataka
@@ -245,6 +254,11 @@ public class KoZnaZnaActivity extends AppCompatActivity {
         timerView = findViewById(R.id.TVTimer);
         bodoviView = findViewById(R.id.TVBodovi);
         bodoviView.setText(String.valueOf(bodovi));
+        tvProtinik = findViewById(R.id.TVProtivnik);
+
+        String protivnik = sharedPreferences.getString("mojProtivnik", "");
+
+        tvProtinik.setText("VS " + protivnik);
 
         tvPitanje = findViewById(R.id.TVPitanje);
         tvOdgovor1 = findViewById(R.id.TVOdgovor1);

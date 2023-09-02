@@ -2,7 +2,9 @@ package com.example.slagalica.games;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -40,6 +42,10 @@ public class SkockoActivity extends AppCompatActivity {
     private ImageView imgSrce;
     private ImageView imgKaro;
     private ImageView imgZvijezda;
+    private TextView tvProtinik;
+
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
 
     private ImageView konacno1;
     private ImageView konacno2;
@@ -56,15 +62,23 @@ public class SkockoActivity extends AppCompatActivity {
     private String guest;
     private int bodovi;
 
+    private int bodovi1;
+    private int bodovi2;
+
     private String WhoImI = "";
     private Integer potez = 0;
     String zapocniIgru = "";
+
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_skocko);
+
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         String[] symbols = {"skocko", "tref", "pik", "srce", "karo", "zvijezda"};
 
@@ -75,6 +89,7 @@ public class SkockoActivity extends AppCompatActivity {
         imgKaro = findViewById(R.id.karo);
         imgZvijezda = findViewById(R.id.zvijezda);
 
+        tvProtinik = findViewById(R.id.TVProtivnik);
         konacno1 = findViewById(R.id.IVkonacno1);
         konacno2 = findViewById(R.id.IVkonacno2);
         konacno3 = findViewById(R.id.IVkonacno3);
@@ -84,6 +99,10 @@ public class SkockoActivity extends AppCompatActivity {
         bodovi = getIntent().getIntExtra("bodovi", 0);
         WhoImI = getIntent().getStringExtra("WhoImI");
 
+        String protivnik = sharedPreferences.getString("mojProtivnik", "");
+
+        tvProtinik.setText("VS " + protivnik);
+
         timerView = findViewById(R.id.TVTimer);
         bodoviView = findViewById(R.id.TVBodovi);
 
@@ -91,6 +110,9 @@ public class SkockoActivity extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance(databaseUrl);
         databaseReference = database.getReference();
+
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         if (guest == null) {
             guest = "";
@@ -169,13 +191,15 @@ public class SkockoActivity extends AppCompatActivity {
 
         startTimer(startTimer);
 
+
+
         databaseReference.child("zapocniIgru").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String value = dataSnapshot.getValue(String.class);
                 zapocniIgru = value;
                 if (value.equals("2")) {
-                    Intent intent = new Intent(SkockoActivity.this, AsocijacijeActivity.class);
+                    Intent intent = new Intent(SkockoActivity.this, ResultActivity.class);
                     intent.putExtra("bodovi", bodovi);
                     if (WhoImI.equals("host")) {
                         intent.putExtra("WhoImI", "klijent");
@@ -500,11 +524,20 @@ public class SkockoActivity extends AppCompatActivity {
                 timerView.setText("00");
                 Toast.makeText(SkockoActivity.this, "Vrijeme je isteklo!", Toast.LENGTH_SHORT).show();
                 activeTimers.remove(this);
-                Intent intent = new Intent(SkockoActivity.this, AsocijacijeActivity.class);
-                intent.putExtra("user", "guest");
-                intent.putExtra("bodovi", bodovi);
-                startActivity(intent);
-                finish();
+                if(!guest.equals(checkGuest)) {
+                    if (zapocniIgru.equals("0")) {
+                        databaseReference.child("zapocniIgru").setValue("1");
+                        databaseReference.child("Skocko").child("BrojPokusaja").setValue(0);
+                    } else if (zapocniIgru.equals("1.5")) {
+                        databaseReference.child("zapocniIgru").setValue("2");
+                    }
+                }else{
+                    Intent intent = new Intent(SkockoActivity.this, AsocijacijeActivity.class);
+                    intent.putExtra("user", "guest");
+                    intent.putExtra("bodovi", bodovi);
+                    startActivity(intent);
+                    finish();
+                }
             }
         };
 

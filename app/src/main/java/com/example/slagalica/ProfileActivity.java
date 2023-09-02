@@ -27,6 +27,8 @@ public class ProfileActivity extends AppCompatActivity {
     private ImageView imageViewProfile;
     private TextView textViewEmail;
     private TextView textViewUsername;
+    private SharedPreferences.Editor editor;
+    private SharedPreferences sharedPreferences;
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
@@ -40,6 +42,8 @@ public class ProfileActivity extends AppCompatActivity {
         setContentView(R.layout.activity_profile);
 
         dbHelper = new DBHelper(this);
+        sharedPreferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
 
         textViewEmail = findViewById(R.id.textViewEmail);
         textViewUsername = findViewById(R.id.textViewUsername);
@@ -121,6 +125,8 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void logout() {
+        editor.clear();
+        editor.apply();
         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();

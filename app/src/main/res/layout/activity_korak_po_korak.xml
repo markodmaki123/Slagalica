@@ -19,6 +19,19 @@
         app:layout_constraintVertical_bias="0.10" />
 
     <TextView
+        android:id="@+id/TVProtivnik"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.95" />
+
+
+    <TextView
         android:id="@+id/TVTimer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
