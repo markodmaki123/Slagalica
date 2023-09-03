@@ -162,8 +162,6 @@ public class HomeActivity extends AppCompatActivity {
                     openHome();
                 } else if (itemId == R.id.menu_leaderboard_wins) {
                     openLeaderboardWins();
-                } else if (itemId == R.id.menu_leaderboard_points) {
-                    openLeaderboardPoints();
                 } else if (itemId == R.id.menu_logout) {
                     logout();
                 }
@@ -222,12 +220,11 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void openLeaderboardWins() {
-
+        Intent intent = new Intent(HomeActivity.this, LeaderboardActivity.class);
+        startActivity(intent);
+        finish();
     }
 
-    private void openLeaderboardPoints() {
-
-    }
 
     private void logout() {
         editor.clear();

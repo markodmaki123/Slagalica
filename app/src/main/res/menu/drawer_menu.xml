@@ -10,9 +10,6 @@
         <item
             android:id="@+id/menu_leaderboard_wins"
             android:title="Rang lista pobijeda" />
-        <item
-            android:id="@+id/menu_leaderboard_points"
-            android:title="Rang lista najvise poena" />
     </group>
     <item
         android:id="@+id/menu_logout"
